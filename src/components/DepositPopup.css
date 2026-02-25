@@ -1,0 +1,171 @@
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background: #1C1C1E;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 30px 30px 0 0;
+  padding: 20px 20px 30px;
+  animation: slideUp 0.3s ease;
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+}
+
+.popup-content.dragging {
+  transition: none;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.drag-bar {
+  width: 60px;
+  height: 6px;
+  background: #3A3A3C;
+  border-radius: 3px;
+  margin: 0 auto 20px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.drag-bar:active {
+  cursor: grabbing;
+}
+
+.popup-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.popup-header h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.currency-section {
+  margin-bottom: 24px;
+}
+
+.currency-btn {
+  background: #2C2C2E;
+  border: 2px solid #2C2C2E;
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.currency-btn.active {
+  border-color: #0088cc;
+}
+
+.currency-icon-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+.currency-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: white;
+  flex: 1;
+}
+
+.currency-badge {
+  font-size: 13px;
+  font-weight: 600;
+  color: #8E8E93;
+}
+
+.amount-section {
+  margin-bottom: 16px;
+}
+
+.amount-input {
+  background: #2C2C2E;
+  border: 2px solid #2C2C2E;
+  border-radius: 40px;
+  padding: 10px 16px;
+  width: 100%;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  outline: none;
+  height: 44px;
+}
+
+.amount-input:focus {
+  border-color: #0088cc;
+}
+
+.amount-input::placeholder {
+  color: #8E8E93;
+  font-weight: 500;
+}
+
+.amount-input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.amount-input[type=number]::-webkit-inner-spin-button,
+.amount-input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+  display: none;
+}
+
+.continue-btn {
+  width: 100%;
+  background: #0088cc;
+  border: none;
+  border-radius: 20px;
+  padding: 12px;
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.min-amount-inside {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+.continue-btn:active {
+  transform: scale(0.98);
+  background: #006699;
+}
