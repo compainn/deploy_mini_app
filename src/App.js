@@ -125,13 +125,11 @@ function getPrizeListForCase(caseId) {
 
 async function sendAdminNotify(item, user) {
   const text = [
-    '🎁 Заявка на вывод NFT',
-    `👤 @${user?.username || 'неизвестен'}`,
-    `🆔 ID: ${user?.id}`,
-    `🎮 Предмет: ${item.itemId}`,
-    `📦 Кейс №${item.caseId}`,
-    '',
-    'Свяжитесь с пользователем в Telegram для передачи NFT.'
+    'Заявка на вывод NFT',
+    `@${user?.username || 'неизвестен'}`,
+    `ID: ${user?.id}`,
+    `Предмет: ${item.itemId}`,
+    `Кейс №${item.caseId}`,
   ].join('\n');
   try {
     const r = await fetch(`https://api.telegram.org/bot${ADMIN_BOT_TOKEN}/sendMessage`, {
@@ -176,26 +174,37 @@ function MainApp() {
   }, [wallet]);
 
   useEffect(() => {
-    const testUserId = 'wecmd_user';
-    const testUsername = 'wecmd';
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
+
+    const tgUser = tg?.initDataUnsafe?.user;
+    const telegramId = tgUser?.id ? String(tgUser.id) : 'guest_' + Math.random().toString(36).slice(2, 8);
+    const username = tgUser?.username || tgUser?.first_name || 'Гость';
+    const firstName = tgUser?.first_name || '';
+    const lastName = tgUser?.last_name || '';
+    const photoUrl = tgUser?.photo_url || null;
+
     const loadUser = async () => {
       try {
         const res = await fetch(`${API_URL}/api/user`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ telegramId: testUserId, username: testUsername })
+          body: JSON.stringify({ telegramId, username, firstName, lastName })
         });
         const data = await res.json();
         if (data && typeof data.balance === 'number') {
           setUserBalance(data.balance);
-          setTelegramUser({ id: testUserId, username: data.username });
+          setTelegramUser({ id: telegramId, username, firstName, lastName, photoUrl });
         } else {
           setUserBalance(0);
-          setTelegramUser({ id: testUserId, username: testUsername });
+          setTelegramUser({ id: telegramId, username, firstName, lastName, photoUrl });
         }
       } catch {
         setUserBalance(0);
-        setTelegramUser({ id: testUserId, username: testUsername });
+        setTelegramUser({ id: telegramId, username, firstName, lastName, photoUrl });
       }
     };
     loadUser();
@@ -298,7 +307,7 @@ function MainApp() {
         )}
       </div>
 
-      <BottomNav page={page} setPage={setPage} />
+      <BottomNav page={page} setPage={setPage} telegramUser={telegramUser} />
 
       {showDepositPopup && (
         <div className="popup-overlay" onClick={() => setShowDepositPopup(false)}>
@@ -1209,7 +1218,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
     </div>
   );
 }
-function BottomNav({ page, setPage }) {
+function BottomNav({ page, setPage, telegramUser }) {
   return (
     <div className="bottom-nav">
       <button className={page === 'leaders' ? 'active' : ''} onClick={() => setPage('leaders')}>
@@ -1221,7 +1230,12 @@ function BottomNav({ page, setPage }) {
         <span>Игры</span>
       </button>
       <button className={page === 'profile' ? 'active' : ''} onClick={() => setPage('profile')}>
-        <div className="avatar-icon">П</div>
+        <div className="avatar-icon">
+          {telegramUser?.photoUrl
+            ? <img src={telegramUser.photoUrl} alt="avatar" style={{width:'100%',height:'100%',borderRadius:'50%',objectFit:'cover'}} />
+            : (telegramUser?.firstName?.[0] || telegramUser?.username?.[0] || 'П').toUpperCase()
+          }
+        </div>
         <span>Профиль</span>
       </button>
     </div>
