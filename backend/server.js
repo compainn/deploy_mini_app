@@ -12,8 +12,8 @@ app.use(cors());
 app.use(express.json());
 app.use('/api', apiRoutes);
 
-// fallback для React
-app.get("/*", (req, res) => {
+// fallback для React SPA (Express 5 способ)
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, "../build/index.html"));
 });
 
