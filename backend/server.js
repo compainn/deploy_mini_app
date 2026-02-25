@@ -1,9 +1,12 @@
+const path = require("path");
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const app = express();
 const apiRoutes = require('./routes/api');
 const { initRocketWS } = require('./rocketGame');
+
+app.use(express.static(path.join(__dirname, "../build")));
 
 app.use(cors());
 app.use(express.json());
@@ -18,4 +21,8 @@ initRocketWS(server);
 const PORT = 3001;
 server.listen(PORT, () => {
   console.log(`Бекенд запущен на http://localhost:${PORT}`);
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../build/index.html"));
 });
