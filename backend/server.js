@@ -18,9 +18,10 @@ const server = http.createServer(app);
 // Подключаем WebSocket ракеты
 initRocketWS(server);
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
+
 server.listen(PORT, () => {
-  console.log(`Бекенд запущен на http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
 
 app.get("*", (req, res) => {
