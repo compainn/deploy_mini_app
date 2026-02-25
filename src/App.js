@@ -44,7 +44,7 @@ import case6reward1 from './assets/images/case_6_reward_1.jpg';
 import case6reward2 from './assets/images/case_6_reward_2.jpg';
 import case6reward3 from './assets/images/case_6_reward_3.jpg';
 
-const API_URL = 'http://192.168.0.105:3001';
+const API_URL = 'https://deployminiapp-production.up.railway.app';
 const ADMIN_BOT_TOKEN = '8781144436:AAEiFET7fD_yDq6hnWC9wsR28fALbmuDl-E';
 const ADMIN_CHAT_ID = '8451146608';
 const PROJECT_WALLET = "UQBhmVyYnMUGyo896ZzSBCXky9jCzxpCEhqIG4FZbNERDHCo";
@@ -846,7 +846,7 @@ function ProfilePage({ telegramUser, userBalance, setShowDepositPopup, inventory
   );
 }
 
-const WS_URL = 'ws://192.168.0.105:3001/ws/rocket';
+const WS_URL = 'wss://deployminiapp-production.up.railway.app/ws/rocket';
 
 const CLOUD_POSITIONS = [
   { top: '58%', left: '2%',  scale: 0.22 },
