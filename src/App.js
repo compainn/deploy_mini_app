@@ -166,49 +166,46 @@ function MainApp() {
   const [inventory, setInventory] = useState([]);
 
   useEffect(() => {
-    if (wallet?.account?.address) {
-      setFriendlyAddress(toFriendlyAddress(wallet.account.address));
-    } else {
-      setFriendlyAddress('');
-    }
-  }, [wallet]);
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    tg.ready();
+    tg.expand();
+  }
 
-  useEffect(() => {
-    const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.ready();
-      tg.expand();
-    }
+  const tgUser = tg?.initDataUnsafe?.user;
+  const telegramId = tgUser?.id ? String(tgUser.id) : 'guest_' + Math.random().toString(36).slice(2, 8);
+  const username = tgUser?.username || tgUser?.first_name || 'Гость';
+  const firstName = tgUser?.first_name || '';
+  const lastName = tgUser?.last_name || '';
+  
+  // В Telegram WebApp photo_url может быть в разных местах
+  const photoUrl = tgUser?.photo_url || null;
+  
+  console.log('Telegram User Data:', tgUser); // Проверь в консоли, приходит ли photo_url
 
-    const tgUser = tg?.initDataUnsafe?.user;
-    const telegramId = tgUser?.id ? String(tgUser.id) : 'guest_' + Math.random().toString(36).slice(2, 8);
-    const username = tgUser?.username || tgUser?.first_name || 'Гость';
-    const firstName = tgUser?.first_name || '';
-    const lastName = tgUser?.last_name || '';
-    const photoUrl = tgUser?.photo_url || null;
-
-    const loadUser = async () => {
-      try {
-        const res = await fetch(`${API_URL}/api/user`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ telegramId, username, firstName, lastName })
-        });
-        const data = await res.json();
-        if (data && typeof data.balance === 'number') {
-          setUserBalance(data.balance);
-          setTelegramUser({ id: telegramId, username, firstName, lastName, photoUrl });
-        } else {
-          setUserBalance(0);
-          setTelegramUser({ id: telegramId, username, firstName, lastName, photoUrl });
-        }
-      } catch {
+  const loadUser = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/user`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ telegramId, username, firstName, lastName })
+      });
+      const data = await res.json();
+      if (data && typeof data.balance === 'number') {
+        setUserBalance(data.balance);
+        setTelegramUser({ id: telegramId, username, firstName, lastName, photoUrl });
+      } else {
         setUserBalance(0);
         setTelegramUser({ id: telegramId, username, firstName, lastName, photoUrl });
       }
-    };
-    loadUser();
-  }, []);
+    } catch {
+      setUserBalance(0);
+      setTelegramUser({ id: telegramId, username, firstName, lastName, photoUrl });
+    }
+  };
+  loadUser();
+  
+}, []);
 
   useEffect(() => {
     if (wallet && telegramUser) {
@@ -1231,10 +1228,20 @@ function BottomNav({ page, setPage, telegramUser }) {
       </button>
       <button className={page === 'profile' ? 'active' : ''} onClick={() => setPage('profile')}>
         <div className="avatar-icon">
-          {telegramUser?.photoUrl
-            ? <img src={telegramUser.photoUrl} alt="avatar" style={{width:'100%',height:'100%',borderRadius:'50%',objectFit:'cover'}} />
-            : (telegramUser?.firstName?.[0] || telegramUser?.username?.[0] || 'П').toUpperCase()
-          }
+          {telegramUser?.photoUrl ? (
+            <img 
+              src={telegramUser.photoUrl} 
+              alt="avatar" 
+              style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                objectFit: 'cover'
+              }} 
+            />
+          ) : (
+            (telegramUser?.firstName?.[0] || telegramUser?.username?.[0] || 'П').toUpperCase()
+          )}
         </div>
         <span>Профиль</span>
       </button>
