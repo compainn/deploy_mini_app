@@ -20,6 +20,9 @@ const convertToFriendlyAddress = (rawAddress) => {
   }
 };
 
+// ============================================================
+//  Таблица призов для каждого кейса (должна совпадать с фронтом)
+// ============================================================
 function getPrizeListForCase(caseId) {
   const has4Rewards = [1, 2, 3, 5].includes(caseId);
   const itemPrizes = has4Rewards
@@ -42,6 +45,7 @@ function getPrizeListForCase(caseId) {
   ];
 }
 
+// Выбирает приз по шансам на сервере
 function rollPrize(prizeList) {
   const rand = Math.random() * 100;
   let cum = 0;
@@ -52,6 +56,11 @@ function rollPrize(prizeList) {
   return prizeList[0];
 }
 
+// ============================================================
+//  НОВЫЙ ЭНДПОИНТ: крутим барабан — сервер выбирает приз
+//  Клиент вызывает ЭТО перед анимацией, получает prize,
+//  запускает анимацию, а потом /api/case/open для зачисления.
+// ============================================================
 router.post('/case/roll', async (req, res) => {
   try {
     const { telegramId, caseId } = req.body;
@@ -61,12 +70,16 @@ router.post('/case/roll', async (req, res) => {
     const prizeList = getPrizeListForCase(caseId);
     const prize = rollPrize(prizeList);
 
+    // Возвращаем приз — он будет использован для анимации и для /case/open
     res.json({ prize });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
+// ============================================================
+//  Пользователи
+// ============================================================
 router.post('/user', async (req, res) => {
   try {
     const { telegramId, username, firstName, lastName } = req.body;
@@ -159,6 +172,10 @@ router.post('/user/win', async (req, res) => {
   }
 });
 
+// ============================================================
+//  Открытие кейса — зачисление после анимации
+//  Приз передаётся с фронта (тот самый, что вернул /case/roll)
+// ============================================================
 router.post('/case/open', async (req, res) => {
   try {
     const { telegramId, caseId, casePrice, prize } = req.body;
@@ -222,24 +239,12 @@ router.get('/user/:telegramId', async (req, res) => {
 router.get('/leaders', async (req, res) => {
   try {
     const leaders = await User.findAll({
-      where: { walletAddressRaw: { [Sequelize.Op.ne]: null } },
+      where: { totalBets: { [Sequelize.Op.gt]: 0 } },
       order: [['totalBets', 'DESC']],
-      limit: 1000,
-      attributes: ['username', 'walletAddressFriendly', 'totalBets', 'totalGames', 'totalWins']
+      limit: 100,
+      attributes: ['username', 'firstName', 'walletAddressFriendly', 'totalBets', 'totalGames', 'totalWins']
     });
     res.json(leaders);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-
-router.delete('/inventory/:itemId', async (req, res) => {
-  try {
-    const item = await InventoryItem.findByPk(req.params.itemId);
-    if (!item) return res.status(404).json({ error: 'Item not found' });
-    await item.destroy();
-    res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

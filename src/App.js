@@ -176,11 +176,16 @@ function MainApp() {
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
     if (tg) { tg.ready(); tg.expand(); }
+    console.log('[TG] WebApp:', tg?.version, 'platform:', tg?.platform);
+    console.log('[TG] initData:', tg?.initData);
+    console.log('[TG] initDataUnsafe:', JSON.stringify(tg?.initDataUnsafe));
     const tgUser = tg?.initDataUnsafe?.user;
+    console.log('[TG] user:', JSON.stringify(tgUser));
     const telegramId = tgUser?.id ? String(tgUser.id) : 'guest_' + Math.random().toString(36).slice(2, 8);
-    const username = tgUser?.username || '';
+    const username = tgUser?.username || tgUser?.first_name || '';
     const firstName = tgUser?.first_name || '';
     const lastName = tgUser?.last_name || '';
+    console.log('[TG] resolved:', { telegramId, username, firstName });
     const loadUser = async () => {
       try {
         const res = await fetch(`${API_URL}/api/user`, {
@@ -761,10 +766,10 @@ function LeadersPage() {
           <div className={`podium-item second ${animationDone ? 'animate' : ''}`}>
             <div className="podium-header">
               <div className="podium-rank-circle second">2</div>
-              <div className="podium-name">{topThree[1].username || 'Аноним'}</div>
+              <div className="podium-name">{topThree[1].username || topThree[1].firstName || 'Аноним'}</div>
             </div>
             <div className="podium-avatar-wrapper">
-              <div className="podium-avatar">{topThree[1].username ? topThree[1].username[0].toUpperCase() : '?'}</div>
+              <div className="podium-avatar">{(topThree[1].username || topThree[1].firstName || '?')[0].toUpperCase()}</div>
             </div>
             <div className="podium-amount">{topThree[1].totalBets?.toFixed(2) || '0.00'} TON</div>
           </div>
@@ -773,10 +778,10 @@ function LeadersPage() {
           <div className={`podium-item first ${animationDone ? 'animate' : ''}`}>
             <div className="podium-header">
               <div className="podium-rank-circle first">1</div>
-              <div className="podium-name">{topThree[0].username || 'Аноним'}</div>
+              <div className="podium-name">{topThree[0].username || topThree[0].firstName || 'Аноним'}</div>
             </div>
             <div className="podium-avatar-wrapper">
-              <div className="podium-avatar">{topThree[0].username ? topThree[0].username[0].toUpperCase() : '?'}</div>
+              <div className="podium-avatar">{(topThree[0].username || topThree[0].firstName || '?')[0].toUpperCase()}</div>
               <div className="podium-glow"></div>
             </div>
             <div className="podium-amount">{topThree[0].totalBets?.toFixed(2) || '0.00'} TON</div>
@@ -786,10 +791,10 @@ function LeadersPage() {
           <div className={`podium-item third ${animationDone ? 'animate' : ''}`}>
             <div className="podium-header">
               <div className="podium-rank-circle third">3</div>
-              <div className="podium-name">{topThree[2].username || 'Аноним'}</div>
+              <div className="podium-name">{topThree[2].username || topThree[2].firstName || 'Аноним'}</div>
             </div>
             <div className="podium-avatar-wrapper">
-              <div className="podium-avatar">{topThree[2].username ? topThree[2].username[0].toUpperCase() : '?'}</div>
+              <div className="podium-avatar">{(topThree[2].username || topThree[2].firstName || '?')[0].toUpperCase()}</div>
             </div>
             <div className="podium-amount">{topThree[2].totalBets?.toFixed(2) || '0.00'} TON</div>
           </div>
@@ -800,8 +805,8 @@ function LeadersPage() {
           <div key={index} className="leader-row-wrapper">
             <span className="leader-position">{index + 4}</span>
             <div className="leader-card">
-              <div className="leader-avatar">{leader.username ? leader.username[0].toUpperCase() : '?'}</div>
-              <span className="leader-name">{leader.username || 'Аноним'}</span>
+              <div className="leader-avatar">{(leader.username || leader.firstName || '?')[0].toUpperCase()}</div>
+              <span className="leader-name">{leader.username || leader.firstName || 'Аноним'}</span>
               <span className="leader-balance">{leader.totalBets?.toFixed(2) || '0.00'} TON</span>
             </div>
           </div>
