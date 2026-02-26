@@ -272,4 +272,15 @@ router.get('/leaders', async (req, res) => {
   }
 });
 
+router.delete('/inventory/:id', async (req, res) => {
+  try {
+    const item = await InventoryItem.findByPk(req.params.id);
+    if (!item) return res.status(404).json({ error: 'Item not found' });
+    await item.destroy();
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
