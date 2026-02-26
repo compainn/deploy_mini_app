@@ -145,18 +145,29 @@ function getPrizeListForCase(caseId) {
 
 
 async function sendAdminNotify(item, user) {
-  const text = [
-    'Заявка на вывод NFT',
-    `@${user?.username || 'неизвестен'}`,
-    `ID: ${user?.id}`,
-    `Предмет: ${item.itemId}`,
-    `Кейс №${item.caseId}`,
-  ].join('\n');
   try {
+    // Сначала эмодзи
+    await fetch(`https://api.telegram.org/bot${ADMIN_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: '📣' }),
+    });
+    // Потом текст с кнопкой профиля
+    const text = `ID: ${user?.id}\nПредмет: ${item.itemId}`;
+    const username = user?.username || user?.id;
     const r = await fetch(`https://api.telegram.org/bot${ADMIN_BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text }),
+      body: JSON.stringify({
+        chat_id: ADMIN_CHAT_ID,
+        text,
+        reply_markup: {
+          inline_keyboard: [[{
+            text: 'Профиль',
+            url: `https://t.me/${username}`
+          }]]
+        }
+      }),
     });
     const d = await r.json();
     if (!d.ok) console.error('TG error:', d);
