@@ -204,7 +204,7 @@ function initRocketWS(server) {
       // ── Кешаут ──
       if (msg.type === 'cashout') {
         if (state.phase !== 'flying') {
-          wsClient.send(JSON.stringify({ type: 'error', text: 'Нельзя вывести сейчас' }));
+          // Тихо игнорируем — не показываем алерт пользователю
           return;
         }
 
