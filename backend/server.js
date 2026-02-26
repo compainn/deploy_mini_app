@@ -83,7 +83,33 @@ app.post('/webhook', async (req, res) => {
       });
     }
 
-    // /add_balance <сумма> <telegramId или username>  (только для тебя — проверка по ADMIN_CHAT_ID)
+    // /add_item — добавляет тестовый предмет в инвентарь
+    if (text.startsWith('/add_item') && String(msg.from.id) === '8451146608') {
+      const parts = text.split(' ');
+      const targetId = parts[1] ? (parts[1].startsWith('@') ? null : parts[1]) : String(msg.from.id);
+      const targetUsername = parts[1]?.startsWith('@') ? parts[1].slice(1) : null;
+      const { User, InventoryItem } = require('./models/User');
+      const { Op } = require('sequelize');
+      const targetUser = await User.findOne({
+        where: targetUsername
+          ? { username: targetUsername }
+          : { telegramId: targetId }
+      });
+      if (!targetUser) {
+        await fetch(`${TG_API}/sendMessage`, { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ chat_id: telegramId, text: '❌ Пользователь не найден' }) });
+        return;
+      }
+      await InventoryItem.create({
+        userId: targetUser.id,
+        itemId: 'case_1_reward_1',
+        itemName: 'NFT',
+        itemImage: 'case_1_reward_1',
+        caseId: 1
+      });
+      await fetch(`${TG_API}/sendMessage`, { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ chat_id: telegramId, text: `✅ Предмет добавлен @${targetUser.username || targetUser.telegramId}` }) });
+    }
     if (text.startsWith('/add_balance') && String(msg.from.id) === '8451146608') {
       const parts = text.split(' ');
       const amount = parseFloat(parts[1]);
