@@ -92,34 +92,55 @@ const toFriendlyAddress = (address) => {
 };
 
 const cases = [
+  { id: 5, image: case5, name: 'Кейс', price: 1.5 },
+  { id: 4, image: case4, name: 'Кейс', price: 2.5 },
+  { id: 6, image: case6, name: 'Кейс', price: 5 },
+  { id: 3, image: case3, name: 'Кейс', price: 7 },
   { id: 1, image: case1, name: 'Кейс', price: 10 },
   { id: 2, image: case2, name: 'Кейс', price: 20 },
-  { id: 3, image: case3, name: 'Кейс', price: 7 },
-  { id: 4, image: case4, name: 'Кейс', price: 2.5 },
-  { id: 5, image: case5, name: 'Кейс', price: 1.5 },
-  { id: 6, image: case6, name: 'Кейс', price: 5 }
 ];
 
 function getPrizeListForCase(caseId) {
   const has4Rewards = [1, 2, 3, 5].includes(caseId);
   const itemPrizes = has4Rewards
     ? [
-        { type: 'item', id: `case_${caseId}_reward_1`, name: 'NFT', imageKey: `case_${caseId}_reward_1`, chance: 7 },
-        { type: 'item', id: `case_${caseId}_reward_2`, name: 'NFT', imageKey: `case_${caseId}_reward_2`, chance: 4 },
-        { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 2 },
-        { type: 'item', id: `case_${caseId}_reward_4`, name: 'NFT', imageKey: `case_${caseId}_reward_4`, chance: 2 },
+        { type: 'item', id: `case_${caseId}_reward_1`, name: 'NFT', imageKey: `case_${caseId}_reward_1`, chance: 0.05, displayChance: 8 },
+        { type: 'item', id: `case_${caseId}_reward_2`, name: 'NFT', imageKey: `case_${caseId}_reward_2`, chance: 0.05, displayChance: 8 },
+        { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 0.05, displayChance: 8 },
+        { type: 'item', id: `case_${caseId}_reward_4`, name: 'NFT', imageKey: `case_${caseId}_reward_4`, chance: 0.05, displayChance: 8 },
       ]
     : [
-        { type: 'item', id: `case_${caseId}_reward_1`, name: 'NFT', imageKey: `case_${caseId}_reward_1`, chance: 8 },
-        { type: 'item', id: `case_${caseId}_reward_2`, name: 'NFT', imageKey: `case_${caseId}_reward_2`, chance: 5 },
-        { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 2 },
+        { type: 'item', id: `case_${caseId}_reward_1`, name: 'NFT', imageKey: `case_${caseId}_reward_1`, chance: 0.05, displayChance: 8 },
+        { type: 'item', id: `case_${caseId}_reward_2`, name: 'NFT', imageKey: `case_${caseId}_reward_2`, chance: 0.05, displayChance: 8 },
+        { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 0.05, displayChance: 8 },
       ];
-  return [
-    { type: 'ton', amount: 0.1, name: '0.1 TON', imageKey: 'ton', chance: 35 },
-    { type: 'ton', amount: 0.5, name: '0.5 TON', imageKey: 'ton', chance: 30 },
-    { type: 'ton', amount: 1.0, name: '1.0 TON', imageKey: 'ton', chance: 20 },
-    ...itemPrizes,
+
+  const bigCase = [1, 2].includes(caseId);
+  const tonPrizes = bigCase ? [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 35, displayChance: 35 },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 25, displayChance: 25 },
+    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 18, displayChance: 18 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 10, displayChance: 10 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 5,  displayChance: 5  },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 2,  displayChance: 2  },
+    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 0.05, displayChance: 7 },
+    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 0.05, displayChance: 7 },
+  ] : caseId === 5 ? [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 40, displayChance: 40 },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 30, displayChance: 30 },
+    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 15, displayChance: 15 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 7,  displayChance: 7  },
+    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 0.05, displayChance: 7 },
+  ] : [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 35, displayChance: 35 },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 28, displayChance: 28 },
+    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 18, displayChance: 18 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 10, displayChance: 10 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 4,  displayChance: 4  },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 0.05, displayChance: 7 },
   ];
+
+  return [...tonPrizes, ...itemPrizes];
 }
 
 
@@ -682,7 +703,7 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
                 className="prize-card-image"
               />
               <span className="prize-card-name">{item.name}</span>
-              <span className="prize-card-chance">{item.chance}%</span>
+              <span className="prize-card-chance">{item.displayChance !== undefined ? item.displayChance : item.chance}%</span>
             </div>
           ))}
         </div>
@@ -777,7 +798,12 @@ function LeadersPage() {
               <div className="podium-name">{topThree[1].username || topThree[1].firstName || 'Аноним'}</div>
             </div>
             <div className="podium-avatar-wrapper">
-              <div className="podium-avatar">{(topThree[1].username || topThree[1].firstName || '?')[0].toUpperCase()}</div>
+              <div className="podium-avatar" style={{padding:0,overflow:'hidden'}}>
+                {topThree[1].photoUrl
+                  ? <img src={topThree[1].photoUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}} />
+                  : (topThree[1].username||topThree[1].firstName||'?')[0].toUpperCase()
+                }
+              </div>
             </div>
             <div className="podium-amount">{topThree[1].totalBets?.toFixed(2) || '0.00'} TON</div>
           </div>
@@ -789,7 +815,12 @@ function LeadersPage() {
               <div className="podium-name">{topThree[0].username || topThree[0].firstName || 'Аноним'}</div>
             </div>
             <div className="podium-avatar-wrapper">
-              <div className="podium-avatar">{(topThree[0].username || topThree[0].firstName || '?')[0].toUpperCase()}</div>
+              <div className="podium-avatar" style={{padding:0,overflow:'hidden'}}>
+                {topThree[0].photoUrl
+                  ? <img src={topThree[0].photoUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}} />
+                  : (topThree[0].username||topThree[0].firstName||'?')[0].toUpperCase()
+                }
+              </div>
               <div className="podium-glow"></div>
             </div>
             <div className="podium-amount">{topThree[0].totalBets?.toFixed(2) || '0.00'} TON</div>
@@ -802,7 +833,12 @@ function LeadersPage() {
               <div className="podium-name">{topThree[2].username || topThree[2].firstName || 'Аноним'}</div>
             </div>
             <div className="podium-avatar-wrapper">
-              <div className="podium-avatar">{(topThree[2].username || topThree[2].firstName || '?')[0].toUpperCase()}</div>
+              <div className="podium-avatar" style={{padding:0,overflow:'hidden'}}>
+                {topThree[2].photoUrl
+                  ? <img src={topThree[2].photoUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}} />
+                  : (topThree[2].username||topThree[2].firstName||'?')[0].toUpperCase()
+                }
+              </div>
             </div>
             <div className="podium-amount">{topThree[2].totalBets?.toFixed(2) || '0.00'} TON</div>
           </div>
@@ -813,7 +849,12 @@ function LeadersPage() {
           <div key={index} className="leader-row-wrapper">
             <span className="leader-position">{index + 4}</span>
             <div className="leader-card">
-              <div className="leader-avatar">{(leader.username || leader.firstName || '?')[0].toUpperCase()}</div>
+              <div className="leader-avatar" style={{padding:0,overflow:'hidden'}}>
+                {leader.photoUrl
+                  ? <img src={leader.photoUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}} />
+                  : (leader.username||leader.firstName||'?')[0].toUpperCase()
+                }
+              </div>
               <span className="leader-name">{leader.username || leader.firstName || 'Аноним'}</span>
               <span className="leader-balance">{leader.totalBets?.toFixed(2) || '0.00'} TON</span>
             </div>
@@ -1241,7 +1282,12 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           ? <div className="rw-bets-empty">Ставок пока нет</div>
           : bets.map((b, i) => (
             <div key={i} className={`rw-bet-row${b.cashedOut ? ' cashed' : ''}`}>
-              <div className="rw-bet-avatar">{(b.username||'?')[0].toUpperCase()}</div>
+              <div className="rw-bet-avatar" style={{padding:0,overflow:'hidden'}}>
+        {b.photoUrl
+          ? <img src={b.photoUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}} />
+          : (b.username||'?')[0].toUpperCase()
+        }
+      </div>
               <div className="rw-bet-info">
                 <span className="rw-bet-name">{b.username||'Аноним'}</span>
                 <span className="rw-bet-ton">{b.amount} TON</span>
