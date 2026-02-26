@@ -22,6 +22,10 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: true
   },
+  photoUrl: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   walletAddressRaw: {
     type: DataTypes.STRING,
     unique: true,

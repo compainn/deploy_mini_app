@@ -166,46 +166,53 @@ function MainApp() {
   const [inventory, setInventory] = useState([]);
 
   useEffect(() => {
-  const tg = window.Telegram?.WebApp;
-  if (tg) {
-    tg.ready();
-    tg.expand();
-  }
-
-  const tgUser = tg?.initDataUnsafe?.user;
-  const telegramId = tgUser?.id ? String(tgUser.id) : 'guest_' + Math.random().toString(36).slice(2, 8);
-  const username = tgUser?.username || tgUser?.first_name || 'Гость';
-  const firstName = tgUser?.first_name || '';
-  const lastName = tgUser?.last_name || '';
-  
-  // В Telegram WebApp photo_url может быть в разных местах
-  const photoUrl = tgUser?.photo_url || null;
-  
-  console.log('Telegram User Data:', tgUser); // Проверь в консоли, приходит ли photo_url
-
-  const loadUser = async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/user`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telegramId, username, firstName, lastName })
-      });
-      const data = await res.json();
-      if (data && typeof data.balance === 'number') {
-        setUserBalance(data.balance);
-        setTelegramUser({ id: telegramId, username, firstName, lastName, photoUrl });
-      } else {
-        setUserBalance(0);
-        setTelegramUser({ id: telegramId, username, firstName, lastName, photoUrl });
-      }
-    } catch {
-      setUserBalance(0);
-      setTelegramUser({ id: telegramId, username, firstName, lastName, photoUrl });
+    if (wallet?.account?.address) {
+      setFriendlyAddress(toFriendlyAddress(wallet.account.address));
+    } else {
+      setFriendlyAddress('');
     }
-  };
-  loadUser();
-  
-}, []);
+  }, [wallet]);
+
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.ready(); tg.expand(); }
+    const tgUser = tg?.initDataUnsafe?.user;
+    const telegramId = tgUser?.id ? String(tgUser.id) : 'guest_' + Math.random().toString(36).slice(2, 8);
+    const username = tgUser?.username || '';
+    const firstName = tgUser?.first_name || '';
+    const lastName = tgUser?.last_name || '';
+    const loadUser = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/user`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ telegramId, username, firstName, lastName })
+        });
+        const data = await res.json();
+        if (data && typeof data.balance === 'number') {
+          setUserBalance(data.balance);
+          setTelegramUser({ id: telegramId, username, firstName, lastName });
+        } else {
+          setUserBalance(0);
+          setTelegramUser({ id: telegramId, username, firstName, lastName });
+        }
+      } catch {
+        setUserBalance(0);
+        setTelegramUser({ id: telegramId, username, firstName, lastName });
+      }
+    };
+    loadUser();
+  }, []);
+
+  useEffect(() => {
+    if (!telegramUser) return;
+    fetch(`${API_URL}/api/user/${telegramUser.id}/photo`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.photoUrl) setTelegramUser(prev => ({ ...prev, photoUrl: d.photoUrl }));
+      })
+      .catch(() => {});
+  }, [telegramUser?.id]);
 
   useEffect(() => {
     if (wallet && telegramUser) {
@@ -466,14 +473,21 @@ function CasesPage({ setPage, setSelectedCase }) {
   );
 }
 
+// ============================================================
+//  Константы ленты
+// ============================================================
 const ITEM_W = 100;      // ширина блока
 const GAP = 12;           // зазор между блоками
 const STEP = ITEM_W + GAP; // шаг = 112px
 const STRIP_REPEAT = 80;  // количество повторений (длинная лента)
 
+// ============================================================
+//  CaseOpenPage — открытие кейса с серверным рандомом и CS2-рамкой
+// ============================================================
 function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegramUser, loadInventory }) {
   const prizeList = getPrizeListForCase(caseData.id);
 
+  // Строим длинную ленту один раз
   const strip = React.useMemo(() => {
     const arr = [];
     for (let i = 0; i < STRIP_REPEAT; i++) {
@@ -501,11 +515,13 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
     setShowResultPopup(false);
     setWinnerIndex(null);
 
+    // ── 1. Сбрасываем ленту в начало без анимации ──
     if (trackRef.current) {
       trackRef.current.style.transition = 'none';
       trackRef.current.style.transform = 'translateX(0px)';
     }
 
+    // ── 2. Запрашиваем приз у сервера ──
     let winner;
     try {
       const rollRes = await fetch(`${API_URL}/api/case/roll`, {
@@ -526,6 +542,8 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
 
     setPrize(winner);
 
+    // ── 3. Ищем подходящий блок в ленте ──
+    //    Целевая зона: середина ленты (~40й повтор из 80)
     const targetRepeat = Math.floor(STRIP_REPEAT * 0.55);
     const targetBase = targetRepeat * prizeList.length;
 
@@ -533,6 +551,7 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
     for (let i = targetBase; i < targetBase + prizeList.length * 3; i++) {
       const item = strip[i];
       if (item && item.type === winner.type && item.imageKey === winner.imageKey) {
+        // Для TON-призов дополнительно проверяем сумму
         if (item.type === 'ton' && item.amount !== winner.amount) continue;
         winnerStripIndex = i;
         break;
@@ -540,15 +559,26 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
     }
     setWinnerIndex(winnerStripIndex);
 
+    // ── 4. Вычисляем смещение так, чтобы центр блока-победителя
+    //    попал ровно в центр контейнера ──
+    //
+    //  Лента начинается с padding-left 15px.
+    //  Центр контейнера = containerWidth / 2
+    //  Центр победителя на ленте = 15 + winnerStripIndex * STEP + ITEM_W / 2
+    //  Нужный translateX = -(центр_победителя - центр_контейнера)
+    //
+    //  + небольшой случайный jitter ±30px чтобы не всегда в ровно центре (как в CS)
 
     const containerWidth = containerRef.current ? containerRef.current.offsetWidth : 372;
     const centerOfContainer = containerWidth / 2;
     const PADDING_LEFT = 15;
     const centerOfWinner = PADDING_LEFT + winnerStripIndex * STEP + ITEM_W / 2;
 
+    // Случайное смещение внутри блока (±35px) — имитирует CS2
     const jitter = (Math.random() - 0.5) * 70;
     const targetOffset = centerOfWinner - centerOfContainer + jitter;
 
+    // ── 5. Запускаем анимацию ──
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         if (trackRef.current) {
@@ -556,13 +586,16 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
           trackRef.current.style.transform = `translateX(-${targetOffset}px)`;
         }
 
+        // ── 6. После анимации: доводим блок ровно в рамку (snap) ──
         setTimeout(() => {
+          // Считаем точный offset без jitter
           const exactOffset = centerOfWinner - centerOfContainer;
           if (trackRef.current) {
             trackRef.current.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
             trackRef.current.style.transform = `translateX(-${exactOffset}px)`;
           }
 
+          // ── 7. Зачисляем приз на сервере ──
           setTimeout(async () => {
             try {
               const resp = await fetch(`${API_URL}/api/case/open`, {
@@ -596,11 +629,14 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
       <button className="close-btn" onClick={() => setPage('cases')}>✕</button>
 
       <div className="wheel-section">
+        {/* Стрелка сверху */}
         <div className="indicator-container">
           <div className="indicator">▼</div>
         </div>
 
         <div className="case-wheel-container" ref={containerRef}>
+          {/* Края затемнения */}
+          {/* Центральная рамка как в CS2 */}
           <div className="wheel-center-frame"></div>
 
           <div className="case-wheel" ref={trackRef}>
@@ -621,6 +657,7 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
         </div>
       </div>
 
+      {/* Список возможных наград */}
       <div className="prizes-static">
         <h3>Возможные выигрыши</h3>
         <div className="prizes-grid">
@@ -638,12 +675,14 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
         </div>
       </div>
 
+      {/* Кнопка открыть */}
       <div className="case-panel">
         <button className="open-case-btn" onClick={openCase} disabled={spinning}>
           {spinning ? 'Открытие...' : `Открыть за ${caseData.price} TON`}
         </button>
       </div>
 
+      {/* Попап результата */}
       {showResultPopup && prize && (
         <div className="popup-overlay" onClick={() => setShowResultPopup(false)}>
           <div className="popup-content" onClick={e => e.stopPropagation()} style={{ paddingBottom: 30 }}>
@@ -777,7 +816,6 @@ function ProfilePage({ telegramUser, userBalance, setShowDepositPopup, inventory
   const [dragY, setDragY] = React.useState(0);
   const [dragStart, setDragStart] = React.useState(null);
   const [withdrawing, setWithdrawing] = React.useState(false);
-
   const openPopup = (item) => { setSelectedItem(item); setDragY(0); };
   const closePopup = () => { setSelectedItem(null); setDragY(0); setDragStart(null); };
   const onTouchStart = (e) => setDragStart(e.touches[0].clientY);
@@ -789,7 +827,6 @@ function ProfilePage({ telegramUser, userBalance, setShowDepositPopup, inventory
     if (dragY > 110) closePopup();
     else { setDragY(0); setDragStart(null); }
   };
-
   const handleWithdraw = async () => {
     if (!selectedItem || withdrawing) return;
     setWithdrawing(true);
@@ -802,7 +839,6 @@ function ProfilePage({ telegramUser, userBalance, setShowDepositPopup, inventory
     } catch (e) { console.error(e); alert('Ошибка при выводе'); }
     setWithdrawing(false);
   };
-
   return (
     <div className="page profile-page">
       <div className="profile-balance">
@@ -815,28 +851,20 @@ function ProfilePage({ telegramUser, userBalance, setShowDepositPopup, inventory
           {inventory.length === 0 && (
             <div className="inventory-empty">Пока нет предметов</div>
           )}
-          {inventory.map((item, index) => {
-            const imageSrc = rewardImages[item.itemImage] || tonLogo;
-            return (
-              <div key={index} className="inventory-item" onClick={() => openPopup(item)}>
-                <img src={imageSrc} alt="NFT" className="inventory-image" />
-                <span className="inventory-name">NFT</span>
-              </div>
-            );
-          })}
+          {inventory.map((item, index) => (
+            <div key={index} className="inventory-item" onClick={() => openPopup(item)}>
+              <img src={rewardImages[item.itemImage] || tonLogo} alt="NFT" className="inventory-image" />
+              <span className="inventory-name">NFT</span>
+            </div>
+          ))}
         </div>
       </div>
-
       {selectedItem && (
         <div className="inv-overlay" onClick={closePopup}>
-          <div
-            className="inv-popup"
+          <div className="inv-popup"
             style={{ transform: `translateY(${dragY}px)`, transition: dragY === 0 ? 'transform 0.3s ease' : 'none' }}
             onClick={e => e.stopPropagation()}
-            onTouchStart={onTouchStart}
-            onTouchMove={onTouchMove}
-            onTouchEnd={onTouchEnd}
-          >
+            onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
             <div className="inv-handle" />
             <div className="inv-img-box">
               <img src={rewardImages[selectedItem.itemImage] || tonLogo} alt="NFT" className="inv-popup-img" />
@@ -920,6 +948,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           setTimeLeft(msg.timeLeft || 10);
 
           if (msg.phase === 'betting') {
+            // Только если это реальная смена фазы — сбрасываем
             if (prevPhase !== 'betting') {
               setCrashed(false);
               setShowRedFlash(false);
@@ -931,6 +960,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
               doReset();
             }
           } else {
+            // Реконнект во время flying/crashed — восстанавливаем ставку
             const myTgId = telegramUser?.id;
             if (myTgId) {
               const myServerBet = (msg.bets || []).find(b => b.telegramId === myTgId);
@@ -989,6 +1019,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
 
         if (msg.type === 'betOk') {
           setUserBalance(msg.balance);
+          // гарантируем что myBet выставлен
           if (myBetRef.current) setMyBet({ ...myBetRef.current });
         }
 
@@ -999,6 +1030,8 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
         }
 
         if (msg.type === 'error') {
+          // Не сбрасываем ставку если она уже принята сервером
+          // (дубликат-ошибки от нескольких WS-соединений)
           const alreadyPlaced = msg.text === 'Ставка уже сделана';
           if (!alreadyPlaced) {
             myBetRef.current   = null;
@@ -1059,7 +1092,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
   const lerpColor = (c1, c2, t) => {
     const h = s => parseInt(s, 16);
     const r = (a, b) => Math.round(h(a) + (h(b) - h(a)) * t).toString(16).padStart(2, '0');
-    return '#' + r(c1.slice(1,3), c2.slice(1,3)) + r(c1.slice(3,5), c2.slice(3,5)) + r(c1.slice(5,7), c2.slice(5,7));
+    return '#' + r(c1.slice(1,3),c2.slice(1,3)) + r(c1.slice(3,5),c2.slice(3,5)) + r(c1.slice(5,7),c2.slice(5,7));
   };
   const getBg = () => {
     if (crashed) return 'linear-gradient(to bottom,#1a0000,#050005)';
@@ -1070,18 +1103,17 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
       { p: 0.65, top: '#050f2e', bot: '#080e3a' },
       { p: 1.00, top: '#000000', bot: '#020510' },
     ];
-    let s0 = stops[0], s1 = stops[stops.length - 1];
-    for (let i = 0; i < stops.length - 1; i++) {
+    let s0 = stops[0], s1 = stops[stops.length-1];
+    for (let i = 0; i < stops.length-1; i++) {
       if (skyP >= stops[i].p && skyP <= stops[i+1].p) { s0 = stops[i]; s1 = stops[i+1]; break; }
     }
     const t = s1.p === s0.p ? 0 : (skyP - s0.p) / (s1.p - s0.p);
-    const top = lerpColor(s0.top, s1.top, t);
-    const bot = lerpColor(s0.bot, s1.bot, t);
-    return `linear-gradient(to bottom,${top},${bot})`;
+    return `linear-gradient(to bottom,${lerpColor(s0.top,s1.top,t)},${lerpColor(s0.bot,s1.bot,t)})`;
   };
 
   const multColor = crashed ? '#ff4444' : myCashedOut ? '#00e676' : '#ffffff';
 
+  // Кнопка определяется через REFS а не state — нет лага
   const renderPanel = () => {
     const p  = phaseRef.current;
     const mb = myBetRef.current;
@@ -1103,6 +1135,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
     if (mb && p === 'betting') {
       return <button className="rw-action-btn rw-btn-waiting" disabled>Ставка {mb.amount} TON принята</button>;
     }
+    // Нет ставки
     return (
       <>
         <div className="rw-input-row">
@@ -1189,6 +1222,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
         )}
       </div>
 
+      {/* СПИСОК СТАВОК — скроллится */}
       <div className="rw-bets-list">
         {bets.length === 0
           ? <div className="rw-bets-empty">Ставок пока нет</div>
@@ -1209,6 +1243,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
         }
       </div>
 
+      {/* ПАНЕЛЬ — fixed к низу, всегда видна */}
       <div className="rw-panel">
         {renderPanel()}
       </div>
@@ -1227,21 +1262,11 @@ function BottomNav({ page, setPage, telegramUser }) {
         <span>Игры</span>
       </button>
       <button className={page === 'profile' ? 'active' : ''} onClick={() => setPage('profile')}>
-        <div className="avatar-icon">
-          {telegramUser?.photoUrl ? (
-            <img 
-              src={telegramUser.photoUrl} 
-              alt="avatar" 
-              style={{
-                width: '100%',
-                height: '100%',
-                borderRadius: '50%',
-                objectFit: 'cover'
-              }} 
-            />
-          ) : (
-            (telegramUser?.firstName?.[0] || telegramUser?.username?.[0] || 'П').toUpperCase()
-          )}
+        <div className="avatar-icon" style={{padding: 0, overflow: 'hidden'}}>
+          {telegramUser?.photoUrl
+            ? <img src={telegramUser.photoUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}} />
+            : (telegramUser?.username?.[0] || telegramUser?.firstName?.[0] || '?').toUpperCase()
+          }
         </div>
         <span>Профиль</span>
       </button>
