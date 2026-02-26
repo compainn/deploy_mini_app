@@ -140,7 +140,7 @@ function getPrizeListForCase(caseId) {
     { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 0.05, displayChance: 7 },
   ];
 
-  return [...tonPrizes, ...itemPrizes];
+  return [...itemPrizes, ...tonPrizes];
 }
 
 
@@ -608,9 +608,10 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
     const PADDING_LEFT = 15;
     const centerOfWinner = PADDING_LEFT + winnerStripIndex * STEP + ITEM_W / 2;
 
-    // Случайное смещение внутри блока (±35px) — имитирует CS2
-    const jitter = (Math.random() - 0.5) * 70;
+    // Небольшой jitter только во время кручения, snap всегда точный
+    const jitter = (Math.random() - 0.5) * 60;
     const targetOffset = centerOfWinner - centerOfContainer + jitter;
+    const exactOffset = centerOfWinner - centerOfContainer;
 
     // ── 5. Запускаем анимацию ──
     requestAnimationFrame(() => {
@@ -620,12 +621,10 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
           trackRef.current.style.transform = `translateX(-${targetOffset}px)`;
         }
 
-        // ── 6. После анимации: доводим блок ровно в рамку (snap) ──
+        // ── 6. После анимации: доводим блок ТОЧНО в рамку ──
         setTimeout(() => {
-          // Считаем точный offset без jitter
-          const exactOffset = centerOfWinner - centerOfContainer;
           if (trackRef.current) {
-            trackRef.current.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            trackRef.current.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
             trackRef.current.style.transform = `translateX(-${exactOffset}px)`;
           }
 
@@ -652,8 +651,8 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
             }
             setShowResultPopup(true);
             setSpinning(false);
-          }, 400); // snap занимает 350ms + запас
-        }, 5050); // 5000ms анимация + запас
+          }, 450);
+        }, 5050);
       });
     });
   };
@@ -1295,7 +1294,9 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
               <div className="rw-bet-right">
                 {b.cashedOut
                   ? <span className="rw-bet-win">+{(b.amount*b.cashoutMultiplier).toFixed(2)} TON<br/><span className="rw-bet-mult">{b.cashoutMultiplier}x</span></span>
-                  : <span className="rw-bet-pending">В игре</span>}
+                  : (phase === 'crashed' || b.crashed)
+                    ? <span className="rw-bet-lost">-{b.amount} TON</span>
+                    : <span className="rw-bet-pending">В игре</span>}
               </div>
             </div>
           ))
