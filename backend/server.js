@@ -58,20 +58,84 @@ app.post('/webhook', async (req, res) => {
 
     await user.save();
 
-    // Отвечаем на /start
-    if (msg.text === '/start') {
+    const text = msg.text || '';
+
+    // /start
+    if (text === '/start') {
+      await fetch(`${TG_API}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: telegramId, text: '🚀' })
+      });
       await fetch(`${TG_API}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: telegramId,
-          text: '🚀 Добро пожаловать! Нажми кнопку чтобы открыть игру.',
+          text: 'Welcome to CasinoImperium! Start winning real Telegram Gifts right now!',
           reply_markup: {
             inline_keyboard: [[{
-              text: '🎮 Открыть игру',
+              text: '🎮 Play CasinoImperium',
               web_app: { url: 'https://deploy-mini-app.vercel.app' }
             }]]
           }
+        })
+      });
+    }
+
+    // /add_balance <сумма> <telegramId или username>  (только для тебя — проверка по ADMIN_CHAT_ID)
+    if (text.startsWith('/add_balance') && String(msg.from.id) === '8451146608') {
+      const parts = text.split(' ');
+      const amount = parseFloat(parts[1]);
+      const target = parts[2]; // telegramId или @username
+
+      if (isNaN(amount) || amount <= 0) {
+        await fetch(`${TG_API}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: telegramId, text: '❌ Укажи сумму: /add_balance 10 123456789' })
+        });
+        return;
+      }
+
+      let targetUser;
+      if (target) {
+        const cleanTarget = target.startsWith('@') ? target.slice(1) : target;
+        // Ищем по telegramId или username
+        const { User } = require('./models/User');
+        const { Op } = require('sequelize');
+        targetUser = await User.findOne({
+          where: {
+            [Op.or]: [
+              { telegramId: cleanTarget },
+              { username: cleanTarget }
+            ]
+          }
+        });
+      } else {
+        // Если не указан — пополняем себе
+        const { User } = require('./models/User');
+        targetUser = await User.findOne({ where: { telegramId: String(msg.from.id) } });
+      }
+
+      if (!targetUser) {
+        await fetch(`${TG_API}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: telegramId, text: `❌ Пользователь не найден: ${target}` })
+        });
+        return;
+      }
+
+      targetUser.balance += amount;
+      await targetUser.save();
+
+      await fetch(`${TG_API}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: telegramId,
+          text: `✅ Начислено ${amount} TON\nПользователь: @${targetUser.username || targetUser.telegramId}\nНовый баланс: ${targetUser.balance.toFixed(2)} TON`
         })
       });
     }
