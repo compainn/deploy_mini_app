@@ -129,6 +129,6 @@ Transaction.belongsTo(User, { foreignKey: 'userId' });
 User.hasMany(InventoryItem, { foreignKey: 'userId' });
 InventoryItem.belongsTo(User, { foreignKey: 'userId' });
 
-sequelize.sync();
+sequelize.sync({ alter: true });
 
 module.exports = { User, Transaction, InventoryItem, sequelize };
