@@ -1040,8 +1040,8 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           setMultiplier(msg.multiplier);
           tickRef.current += 1;
           const t  = tickRef.current;
-          const sx = 0.06 + t * 0.0018;
-          const sy = 0.04 + t * 0.0012;
+          const sx = 0.08 + t * 0.0022;
+          const sy = 0.06 + t * 0.0016;
           rocketXRef.current = Math.min(rocketXRef.current + sx, 84);
           rocketYRef.current = Math.max(rocketYRef.current - sy, 7);
           const sp = Math.max(0, Math.min(1, 1 - (rocketYRef.current - 7) / 71));
@@ -1182,7 +1182,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
     if (mb && p === 'flying') {
       return (
         <button className="rw-action-btn rw-btn-cashout" onClick={cashout}>
-          Забрать {(mb.amount * multiplier).toFixed(2)} TON @ {multiplier.toFixed(2)}x
+          Забрать {(mb.amount * multiplier).toFixed(2)} TON
         </button>
       );
     }
@@ -1228,30 +1228,30 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           ))}
         </div>
 
-        {skyP > 0.4 && (
-          <div className="rw-lottie-layer rw-stars-layer" style={{ opacity: Math.min((skyP-0.4)*2.5, 0.9) }}>
+        {skyP > 0.25 && (
+          <div className="rw-lottie-layer rw-stars-layer" style={{ opacity: Math.min((skyP-0.25)*3, 0.9) }}>
             <Lottie animationData={starsAnimation} loop autoplay style={{ width:'100%', height:'100%' }} />
           </div>
         )}
-        {skyP > 0.55 && (
-          <div className="rw-lottie-layer rw-planet-layer" style={{ opacity: Math.min((skyP-0.55)*4, 1) }}>
+        {skyP > 0.35 && (
+          <div className="rw-lottie-layer rw-planet-layer" style={{ opacity: Math.min((skyP-0.35)*5, 1) }}>
             <Lottie animationData={planetAnimation} loop autoplay style={{ width:90, height:90 }} />
           </div>
         )}
-        {skyP > 0.72 && (
-          <div className="rw-lottie-layer rw-planet2-layer" style={{ opacity: Math.min((skyP-0.72)*5, 1) }}>
+        {skyP > 0.5 && (
+          <div className="rw-lottie-layer rw-planet2-layer" style={{ opacity: Math.min((skyP-0.5)*6, 1) }}>
             <Lottie animationData={planet2Animation} loop autoplay style={{ width:75, height:75 }} />
           </div>
         )}
-        {skyP > 0.65 && (
-          <div className="rw-lottie-layer rw-satellite-layer" style={{ opacity: Math.min((skyP-0.65)*5, 1) }}>
+        {skyP > 0.45 && (
+          <div className="rw-lottie-layer rw-satellite-layer" style={{ opacity: Math.min((skyP-0.45)*6, 1) }}>
             <Lottie animationData={satelliteAnimation} loop autoplay style={{ width:55, height:55 }} />
           </div>
         )}
-        {skyP < 0.5 && !crashed && CLOUD_POSITIONS.map((pos, i) => (
+        {skyP < 0.35 && !crashed && CLOUD_POSITIONS.map((pos, i) => (
           <div key={i} className="rw-cloud-item" style={{
             top: pos.top, left: pos.left,
-            opacity: Math.max((0.5-skyP)*2.5, 0),
+            opacity: Math.max((0.35-skyP)*3, 0),
             transform: `scale(${pos.scale})`,
             animationDelay: `${i*1.4}s`,
           }}>
