@@ -41,6 +41,7 @@ function getPublicState() {
     bets: state.bets.map(b => ({
       telegramId: b.telegramId,
       username: b.username,
+      photoUrl: b.photoUrl || null,
       amount: b.amount,
       cashedOut: b.cashedOut,
       cashoutMultiplier: b.cashoutMultiplier,
@@ -104,6 +105,7 @@ async function crash() {
     crashAt: state.crashAt,
     bets: state.bets.map(b => ({
       username: b.username,
+      photoUrl: b.photoUrl || null,
       amount: b.amount,
       cashedOut: b.cashedOut,
       cashoutMultiplier: b.cashoutMultiplier,
@@ -184,6 +186,7 @@ function initRocketWS(server) {
           state.bets.push({
             telegramId,
             username: username || 'Аноним',
+            photoUrl: user.photoUrl || null,
             amount,
             cashedOut: false,
             cashoutMultiplier: null,
