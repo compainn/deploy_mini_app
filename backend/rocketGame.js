@@ -17,6 +17,7 @@ let state = {
   bets: [],
   roundId: 0,
   timeLeft: 10,
+  history: [], // последние 7 краш-значений
 };
 
 // Храним клиентов с их telegramId для реконнекта
@@ -48,6 +49,7 @@ function getPublicState() {
     })),
     roundId: state.roundId,
     timeLeft: state.timeLeft,
+    history: state.history,
   };
 }
 
@@ -99,10 +101,14 @@ function startFlying() {
 async function crash() {
   state.phase = 'crashed';
   state.multiplier = state.crashAt;
+  // Сохраняем в историю последних 7 раундов
+  state.history.unshift(state.crashAt);
+  if (state.history.length > 7) state.history.pop();
   console.log(`[ROCKET] CRASH at ${state.crashAt}x`);
   broadcast({
     type: 'crash',
     crashAt: state.crashAt,
+    history: state.history,
     bets: state.bets.map(b => ({
       username: b.username,
       photoUrl: b.photoUrl || null,
