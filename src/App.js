@@ -198,7 +198,7 @@ function MainApp() {
   const [dragStart, setDragStart] = useState(null);
   const [dragOffset, setDragOffset] = useState(0);
   const [dragging, setDragging] = useState(false);
-  const [tonConnectUI] = useTonConnectUI();
+  const [dragDir, setDragDir] = useState('');
   const [selectedCase, setSelectedCase] = useState(null);
   const [inventory, setInventory] = useState([]);
 
@@ -280,12 +280,13 @@ function MainApp() {
   const handleDragStart = (e) => {
     setDragStart(e.touches ? e.touches[0].clientY : e.clientY);
     setDragging(true);
+    setDragDir('');
   };
   const handleDragMove = (e) => {
     if (!dragStart || !dragging) return;
-    let delta = (e.touches ? e.touches[0].clientY : e.clientY) - dragStart;
-    if (delta < 0) delta = 0;
-    setDragOffset(delta);
+    const rawDelta = (e.touches ? e.touches[0].clientY : e.clientY) - dragStart;
+    setDragDir(rawDelta > 3 ? 'down' : rawDelta < -3 ? 'up' : '');
+    setDragOffset(Math.max(0, rawDelta));
   };
   const handleDragEnd = (e) => {
     if (!dragStart || !dragging) return;
@@ -369,7 +370,7 @@ function MainApp() {
             onTouchMove={handleDragMove}
             onTouchEnd={handleDragEnd}
           >
-            <div className={`drag-bar ${dragging ? (dragOffset > 5 ? 'drag-down' : dragOffset < -5 ? 'drag-up' : '') : ''}`}></div>
+            <div className={`drag-bar ${dragging && dragDir === 'down' ? 'drag-down' : dragging && dragDir === 'up' ? 'drag-up' : ''}`}></div>
             <div className="currency-section">
               <div className="currency-btn active">
                 <img src={tonLogo} alt="TON" className="currency-icon-img" />
@@ -403,19 +404,20 @@ function Header({ wallet, telegramUser, userBalance, friendlyAddress, setShowDep
   const [dragStart, setDragStart] = useState(null);
   const [dragOffset, setDragOffset] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [dragDir, setDragDir] = useState('');
 
-  const handleDragStart = (e) => { setDragStart(e.touches ? e.touches[0].clientY : e.clientY); setDragging(true); };
+  const handleDragStart = (e) => { setDragStart(e.touches ? e.touches[0].clientY : e.clientY); setDragging(true); setDragDir(''); };
   const handleDragMove = (e) => {
     if (!dragStart || !dragging) return;
-    let delta = (e.touches ? e.touches[0].clientY : e.clientY) - dragStart;
-    if (delta < 0) delta = 0;
-    setDragOffset(delta);
+    const rawDelta = (e.touches ? e.touches[0].clientY : e.clientY) - dragStart;
+    setDragDir(rawDelta > 3 ? 'down' : rawDelta < -3 ? 'up' : '');
+    setDragOffset(Math.max(0, rawDelta));
   };
   const handleDragEnd = (e) => {
     if (!dragStart || !dragging) return;
     const delta = (e.changedTouches ? e.changedTouches[0].clientY : e.clientY) - dragStart;
     if (delta > 100) setShowWalletMenu(false);
-    setDragStart(null); setDragOffset(0); setDragging(false);
+    setDragStart(null); setDragOffset(0); setDragging(false); setDragDir('');
   };
 
   const disconnectWallet = async () => {
@@ -464,7 +466,7 @@ function Header({ wallet, telegramUser, userBalance, friendlyAddress, setShowDep
             onMouseUp={handleDragEnd} onMouseLeave={handleDragEnd}
             onTouchStart={handleDragStart} onTouchMove={handleDragMove} onTouchEnd={handleDragEnd}
           >
-            <div className={`drag-bar ${dragging ? (dragOffset > 5 ? 'drag-down' : dragOffset < -5 ? 'drag-up' : '') : ''}`}></div>
+            <div className={`drag-bar ${dragging && dragDir === 'down' ? 'drag-down' : dragging && dragDir === 'up' ? 'drag-up' : ''}`}></div>
             <div className="popup-header"><h3>Кошелек</h3></div>
             <div className="wallet-address-full">{displayAddress}</div>
             <button className="disconnect-btn" onClick={disconnectWallet}>Отвязать</button>
@@ -882,17 +884,25 @@ function ProfilePage({ telegramUser, userBalance, setShowDepositPopup, inventory
   const [selectedItem, setSelectedItem] = React.useState(null);
   const [dragY, setDragY] = React.useState(0);
   const [dragStart, setDragStart] = React.useState(null);
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [invDragDir, setInvDragDir] = React.useState('');
   const [withdrawing, setWithdrawing] = React.useState(false);
   const openPopup = (item) => { setSelectedItem(item); setDragY(0); };
-  const closePopup = () => { setSelectedItem(null); setDragY(0); setDragStart(null); };
-  const onTouchStart = (e) => setDragStart(e.touches[0].clientY);
-  const onTouchMove = (e) => {
-    if (dragStart === null) return;
-    setDragY(Math.max(0, e.touches[0].clientY - dragStart));
+  const closePopup = () => { setSelectedItem(null); setDragY(0); setDragStart(null); setIsDragging(false); setInvDragDir(''); };
+  const onDragStart = (e) => {
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+    setDragStart(y); setIsDragging(true); setInvDragDir('');
   };
-  const onTouchEnd = () => {
+  const onDragMove = (e) => {
+    if (dragStart === null) return;
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+    const raw = y - dragStart;
+    setInvDragDir(raw > 3 ? 'down' : raw < -3 ? 'up' : '');
+    setDragY(Math.max(0, raw));
+  };
+  const onDragEnd = (e) => {
     if (dragY > 110) closePopup();
-    else { setDragY(0); setDragStart(null); }
+    else { setDragY(0); setDragStart(null); setIsDragging(false); setInvDragDir(''); }
   };
   const handleWithdraw = async () => {
     if (!selectedItem || withdrawing) return;
@@ -902,8 +912,7 @@ function ProfilePage({ telegramUser, userBalance, setShowDepositPopup, inventory
       await sendAdminNotify(selectedItem, telegramUser);
       setInventory(prev => prev.filter(i => i.id !== selectedItem.id));
       closePopup();
-      alert('Заявка отправлена! Администратор свяжется с вами в Telegram.');
-    } catch (e) { console.error(e); alert('Ошибка при выводе'); }
+    } catch (e) { console.error(e); }
     setWithdrawing(false);
   };
   return (
@@ -931,8 +940,9 @@ function ProfilePage({ telegramUser, userBalance, setShowDepositPopup, inventory
           <div className="inv-popup"
             style={{ transform: `translateY(${dragY}px)`, transition: dragY === 0 ? 'transform 0.3s ease' : 'none' }}
             onClick={e => e.stopPropagation()}
-            onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-            <div className={`inv-handle drag-bar ${dragY > 5 ? 'drag-down' : ''}`} />
+            onMouseDown={onDragStart} onMouseMove={onDragMove} onMouseUp={onDragEnd} onMouseLeave={onDragEnd}
+            onTouchStart={onDragStart} onTouchMove={onDragMove} onTouchEnd={onDragEnd}>
+            <div className={`drag-bar ${isDragging && invDragDir === 'down' ? 'drag-down' : isDragging && invDragDir === 'up' ? 'drag-up' : ''}`} />
             <div className="inv-img-box">
               <img src={rewardImages[selectedItem.itemImage] || tonLogo} alt="NFT" className="inv-popup-img" />
             </div>
@@ -1279,11 +1289,14 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
         {phase === 'betting' && <div className="rw-countdown">Ставки {timeLeft}с</div>}
         {history.length > 0 && (
           <div className="rw-history-bar">
-            {history.map((val, i) => (
-              <div key={i} className={`rw-history-chip ${val >= 10 ? 'high' : val >= 2 ? 'mid' : 'low'}`}>
+            {history.map((val, i) => {
+              const cls = val < 1.5 ? 'c-blue' : val < 2 ? 'c-purple' : val < 5 ? 'c-pink' : val < 10 ? 'c-yellow' : val < 15 ? 'c-cyan' : val < 30 ? 'c-red' : val < 50 ? 'c-green' : 'c-black';
+              return (
+              <div key={i} className={`rw-history-chip ${cls}`}>
                 {val >= 100 ? Math.floor(val) : val}x
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
