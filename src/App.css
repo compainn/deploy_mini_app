@@ -463,7 +463,7 @@ body {
 }
 
 .prize-card {
-  background: rgba(255,255,255,0.06);
+  background: #2C2C2E;
   border-radius: 14px;
   padding: 12px 8px;
   display: flex;
@@ -471,6 +471,18 @@ body {
   align-items: center;
   gap: 6px;
 }
+
+.drag-bar {
+  width: 40px;
+  height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px;
+  margin: 0 auto 12px;
+  transition: transform 0.15s ease;
+  transform-origin: center;
+}
+.drag-bar.drag-down { transform: perspective(40px) rotateX(-20deg) scaleX(0.85); }
+.drag-bar.drag-up   { transform: perspective(40px) rotateX(20deg) scaleX(0.85); }
 
 .prize-card-image {
   width: 45px;
@@ -1002,12 +1014,49 @@ body {
   position: relative;
   width: calc(100% - 28px);
   margin: 14px 14px 0;
-  height: 175px;
+  height: 190px;
   flex-shrink: 0;
   overflow: hidden;
   border-radius: 20px;
   border: 1px solid rgba(255,255,255,0.1);
   box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+}
+
+/* ── History bar ── */
+.rw-history-bar {
+  position: absolute;
+  bottom: 6px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  z-index: 10;
+  overflow: hidden;
+}
+.rw-history-chip {
+  flex: 1;
+  height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.rw-history-chip.high  { background: rgba(255,80,80,0.25);  color: #ff6060; }
+.rw-history-chip.mid   { background: rgba(0,230,118,0.2);   color: #00e676; }
+.rw-history-chip.low   { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+
+/* ── Bet error ── */
+.rw-bet-error {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ff5555;
+  background: rgba(255,60,60,0.1);
+  border-radius: 10px;
+  padding: 5px 10px;
 }
 
 /* Статичные звёзды-точки */
@@ -1363,13 +1412,6 @@ body {
   align-items: center;
   gap: 8px;
   touch-action: none;
-}
-.inv-handle {
-  width: 40px;
-  height: 4px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 2px;
-  margin-bottom: 4px;
 }
 .inv-img-box {
   width: 110px;
