@@ -6,6 +6,7 @@ import planetAnimation from './assets/animations/planet.json';
 import starsAnimation from './assets/animations/stars.json';
 import satelliteAnimation from './assets/animations/satellite.json';
 import planet2Animation from './assets/animations/planet2.json';
+import planeAnimation from './assets/animations/plane.json';
 import './App.css';
 import './components/DepositPopup.css';
 import { TonConnectUIProvider, TonConnectButton, useTonWallet, useTonConnectUI } from '@tonconnect/ui-react';
@@ -982,6 +983,13 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
   const [skyP, setSkyP]               = useState(0);
   const [crashMult, setCrashMult]     = useState(null);
   const [betError, setBetError]       = useState('');
+  const [showPlane, setShowPlane]     = useState(false);
+  const betErrorTimer = useRef(null);
+  const showBetError = (msg) => {
+    setBetError(msg);
+    if (betErrorTimer.current) clearTimeout(betErrorTimer.current);
+    betErrorTimer.current = setTimeout(() => setBetError(''), 1500);
+  };
   const [history, setHistory]         = useState([]);
 
   const wsRef          = useRef(null);
@@ -1074,6 +1082,11 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           setRocketX(rocketXRef.current);
           setRocketY(rocketYRef.current);
           setSkyP(sp);
+          // Самолёт пролетает один раз при ~1.5x
+          if (msg.multiplier >= 1.45 && msg.multiplier <= 1.55 && t < 50) {
+            setShowPlane(true);
+            setTimeout(() => setShowPlane(false), 1800);
+          }
         }
 
         if (msg.type === 'crash') {
@@ -1140,13 +1153,13 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
 
   const placeBet = () => {
     const amount = parseFloat(betAmount);
-    if (isNaN(amount) || amount <= 0)  { setBetError('Введите корректную сумму'); return; }
-    if (amount > userBalance)           { setBetError('Недостаточно средств'); return; }
+    if (isNaN(amount) || amount <= 0)  { showBetError('Введите корректную сумму'); return; }
+    if (amount > userBalance)           { showBetError('Недостаточно средств'); return; }
     if (myBetRef.current)               { return; }
     if (betSentRef.current)             { return; }
-    if (phaseRef.current !== 'betting') { setBetError('Ставки только до старта'); return; }
+    if (phaseRef.current !== 'betting') { showBetError('Ставки только до старта'); return; }
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      setBetError('Нет соединения'); return;
+      showBetError('Нет соединения'); return;
     }
     setBetError('');
     betSentRef.current = true;
@@ -1229,7 +1242,6 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
             MAX
           </button>
         </div>
-        {betError ? <div className="rw-bet-error">{betError}</div> : null}
         <button className="rw-action-btn" onClick={placeBet} disabled={p !== 'betting'}>
           {p === 'betting' ? 'Сделать ставку' : 'Ждите следующего раунда'}
         </button>
@@ -1258,8 +1270,8 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
             <Lottie animationData={starsAnimation} loop autoplay style={{ width:'100%', height:'100%' }} />
           </div>
         )}
-        {skyP > 0.35 && (
-          <div className="rw-lottie-layer rw-planet-layer" style={{ opacity: Math.min((skyP-0.35)*5, 1) }}>
+        {skyP > 0.48 && (
+          <div className="rw-lottie-layer rw-planet-layer" style={{ opacity: Math.min((skyP-0.48)*6, 1) }}>
             <Lottie animationData={planetAnimation} loop autoplay style={{ width:90, height:90 }} />
           </div>
         )}
@@ -1268,8 +1280,8 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
             <Lottie animationData={planet2Animation} loop autoplay style={{ width:75, height:75 }} />
           </div>
         )}
-        {skyP > 0.45 && (
-          <div className="rw-lottie-layer rw-satellite-layer" style={{ opacity: Math.min((skyP-0.45)*6, 1) }}>
+        {skyP > 0.32 && (
+          <div className="rw-lottie-layer rw-satellite-layer" style={{ opacity: Math.min((skyP-0.32)*7, 1) }}>
             <Lottie animationData={satelliteAnimation} loop autoplay style={{ width:55, height:55 }} />
           </div>
         )}
@@ -1303,6 +1315,11 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
         {!crashed && (
           <div className="rw-rocket" style={{ left:`${rocketX}%`, top:`${rocketY}%` }}>
             <Lottie animationData={rocketAnimation} loop autoplay style={{ width:64, height:64 }} />
+          </div>
+        )}
+        {showPlane && (
+          <div className="rw-plane">
+            <Lottie animationData={planeAnimation} loop={false} autoplay style={{ width:70, height:70 }} />
           </div>
         )}
         {crashed && <div className="rw-crash-burst" style={{ left:`${rocketXRef.current}%`, top:`${rocketYRef.current}%` }} />}
@@ -1340,6 +1357,9 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           ))
         }
       </div>
+
+      {/* TOAST ошибки */}
+      {betError && <div className="rw-bet-toast">{betError}</div>}
 
       {/* ПАНЕЛЬ — fixed к низу, всегда видна */}
       <div className="rw-panel">
