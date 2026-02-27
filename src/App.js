@@ -117,27 +117,32 @@ function getPrizeListForCase(caseId) {
 
   const bigCase = [1, 2].includes(caseId);
   const tonPrizes = bigCase ? [
-    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 35, displayChance: 35 },
-    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 25, displayChance: 25 },
-    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 18, displayChance: 18 },
-    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 10, displayChance: 10 },
-    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 5,  displayChance: 5  },
-    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 2,  displayChance: 2  },
-    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 0.05, displayChance: 7 },
-    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 0.05, displayChance: 7 },
-  ] : caseId === 5 ? [
-    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 40, displayChance: 40 },
-    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 30, displayChance: 30 },
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 10, displayChance: 10 },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 15, displayChance: 15 },
     { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 15, displayChance: 15 },
-    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 7,  displayChance: 7  },
-    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 0.05, displayChance: 7 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 20, displayChance: 20 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 18, displayChance: 18 },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 12, displayChance: 12 },
+    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 7,  displayChance: 7  },
+    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 0.05, displayChance: 5 },
+    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 0.05, displayChance: 5 },
+  ] : caseId === 5 ? [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 10, displayChance: 10 },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 20, displayChance: 20 },
+    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 25, displayChance: 25 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 22, displayChance: 22 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 15, displayChance: 15 },
+    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 5,  displayChance: 5  },
+    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 0.05, displayChance: 3 },
   ] : [
-    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 35, displayChance: 35 },
-    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 28, displayChance: 28 },
-    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 18, displayChance: 18 },
-    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 10, displayChance: 10 },
-    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 4,  displayChance: 4  },
-    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 0.05, displayChance: 7 },
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 10, displayChance: 10 },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 18, displayChance: 18 },
+    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 22, displayChance: 22 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 22, displayChance: 22 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 15, displayChance: 15 },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 8,  displayChance: 8  },
+    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 3,  displayChance: 3  },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 0.05, displayChance: 3 },
   ];
 
   return [...itemPrizes, ...tonPrizes];
@@ -364,8 +369,7 @@ function MainApp() {
             onTouchMove={handleDragMove}
             onTouchEnd={handleDragEnd}
           >
-            <div className="drag-bar"></div>
-            <div className="popup-header"><h3>Пополнить</h3></div>
+            <div className={`drag-bar ${dragging ? (dragOffset > 5 ? 'drag-down' : dragOffset < -5 ? 'drag-up' : '') : ''}`}></div>
             <div className="currency-section">
               <div className="currency-btn active">
                 <img src={tonLogo} alt="TON" className="currency-icon-img" />
@@ -460,7 +464,7 @@ function Header({ wallet, telegramUser, userBalance, friendlyAddress, setShowDep
             onMouseUp={handleDragEnd} onMouseLeave={handleDragEnd}
             onTouchStart={handleDragStart} onTouchMove={handleDragMove} onTouchEnd={handleDragEnd}
           >
-            <div className="drag-bar"></div>
+            <div className={`drag-bar ${dragging ? (dragOffset > 5 ? 'drag-down' : dragOffset < -5 ? 'drag-up' : '') : ''}`}></div>
             <div className="popup-header"><h3>Кошелек</h3></div>
             <div className="wallet-address-full">{displayAddress}</div>
             <button className="disconnect-btn" onClick={disconnectWallet}>Отвязать</button>
@@ -713,7 +717,6 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
                 className="prize-card-image"
               />
               <span className="prize-card-name">{item.name}</span>
-              <span className="prize-card-chance">{item.displayChance !== undefined ? item.displayChance : item.chance}%</span>
             </div>
           ))}
         </div>
@@ -929,7 +932,7 @@ function ProfilePage({ telegramUser, userBalance, setShowDepositPopup, inventory
             style={{ transform: `translateY(${dragY}px)`, transition: dragY === 0 ? 'transform 0.3s ease' : 'none' }}
             onClick={e => e.stopPropagation()}
             onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-            <div className="inv-handle" />
+            <div className={`inv-handle drag-bar ${dragY > 5 ? 'drag-down' : ''}`} />
             <div className="inv-img-box">
               <img src={rewardImages[selectedItem.itemImage] || tonLogo} alt="NFT" className="inv-popup-img" />
             </div>
@@ -968,6 +971,8 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
   const [showRedFlash, setShowRedFlash] = useState(false);
   const [skyP, setSkyP]               = useState(0);
   const [crashMult, setCrashMult]     = useState(null);
+  const [betError, setBetError]       = useState('');
+  const [history, setHistory]         = useState([]);
 
   const wsRef          = useRef(null);
   const rocketXRef     = useRef(5);
@@ -1010,6 +1015,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           setMultiplier(msg.multiplier || 1);
           setBets(msg.bets || []);
           setTimeLeft(msg.timeLeft || 10);
+          if (msg.history) setHistory(msg.history);
 
           if (msg.phase === 'betting') {
             // Только если это реальная смена фазы — сбрасываем
@@ -1068,6 +1074,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           phaseRef.current = 'crashed';
           setPhase('crashed');
           setBets(msg.bets || []);
+          if (msg.history) setHistory(msg.history);
           setTimeout(() => setShowRedFlash(false), 2500);
           setTimeout(() => {
             phaseRef.current   = 'betting';
@@ -1123,22 +1130,19 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
 
   const placeBet = () => {
     const amount = parseFloat(betAmount);
-    console.log('[BET] placeBet called', { amount, phase: phaseRef.current, myBet: myBetRef.current, betSent: betSentRef.current, wsState: wsRef.current?.readyState });
-    if (isNaN(amount) || amount <= 0)  { alert('Введите корректную сумму'); return; }
-    if (amount > userBalance)           { alert('Недостаточно средств'); return; }
-    if (myBetRef.current)               { console.log('[BET] already placed'); alert('Ставка уже сделана'); return; }
-    if (betSentRef.current)             { console.log('[BET] already sent'); return; }
-    if (phaseRef.current !== 'betting') { console.log('[BET] wrong phase:', phaseRef.current); alert('Ставки только до старта'); return; }
+    if (isNaN(amount) || amount <= 0)  { setBetError('Введите корректную сумму'); return; }
+    if (amount > userBalance)           { setBetError('Недостаточно средств'); return; }
+    if (myBetRef.current)               { return; }
+    if (betSentRef.current)             { return; }
+    if (phaseRef.current !== 'betting') { setBetError('Ставки только до старта'); return; }
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      console.log('[BET] ws not open, state:', wsRef.current?.readyState);
-      alert('Нет соединения'); return;
+      setBetError('Нет соединения'); return;
     }
-
+    setBetError('');
     betSentRef.current = true;
     const bet = { amount };
     myBetRef.current = bet;
     setMyBet(bet);
-    console.log('[BET] sending bet', bet);
 
     wsRef.current.send(JSON.stringify({
       type:       'bet',
@@ -1208,13 +1212,14 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
             type="number"
             placeholder="0.00"
             value={betAmount}
-            onChange={e => setBetAmount(e.target.value)}
+            onChange={e => { setBetAmount(e.target.value); setBetError(''); }}
             disabled={p !== 'betting'}
           />
           <button className="rw-max-btn" onClick={() => setBetAmount(String(userBalance))} disabled={p !== 'betting'}>
             MAX
           </button>
         </div>
+        {betError ? <div className="rw-bet-error">{betError}</div> : null}
         <button className="rw-action-btn" onClick={placeBet} disabled={p !== 'betting'}>
           {p === 'betting' ? 'Сделать ставку' : 'Ждите следующего раунда'}
         </button>
@@ -1272,6 +1277,15 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
         <div className="rw-multiplier" style={{ color: multColor }}>{multiplier.toFixed(2)}x</div>
         {crashed && <div className="rw-crash-label">УЛЕТЕЛА</div>}
         {phase === 'betting' && <div className="rw-countdown">Ставки {timeLeft}с</div>}
+        {history.length > 0 && (
+          <div className="rw-history-bar">
+            {history.map((val, i) => (
+              <div key={i} className={`rw-history-chip ${val >= 10 ? 'high' : val >= 2 ? 'mid' : 'low'}`}>
+                {val >= 100 ? Math.floor(val) : val}x
+              </div>
+            ))}
+          </div>
+        )}
 
         {!crashed && (
           <div className="rw-rocket" style={{ left:`${rocketX}%`, top:`${rocketY}%` }}>
