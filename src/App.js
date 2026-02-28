@@ -321,7 +321,7 @@ function MainApp() {
 
   return (
     <div className="app">
-      {globalToast && <div className={`rw-bet-toast global-toast ${globalToastType === 'success' ? 'success-toast' : ''}`}>{globalToast}</div>}
+      {globalToast && <div key={globalToast + globalToastType} className={`rw-bet-toast global-toast ${globalToastType === 'success' ? 'success-toast' : ''}`}>{globalToast}</div>}
       <Header
         wallet={wallet}
         telegramUser={telegramUser}
@@ -1008,7 +1008,9 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
   const [crashMult, setCrashMult]     = useState(null);
   const [betError, setBetError]       = useState('');
   const [showPlane, setShowPlane]     = useState(false);
-  const [nloPhase, setNloPhase]       = useState(0); // 0=hidden, 1-4 = each NLO appears
+  const [nloPhase, setNloPhase]       = useState(0);
+  const [bgFrozen, setBgFrozen]       = useState(false); // держит голубой цвет в начале раунда
+  const bgFrozenTimer                 = useRef(null);
   const nloTriggered                  = useRef(false);
   const [showMeteors, setShowMeteors] = useState(false);
   const betErrorTimer = useRef(null);
@@ -1062,6 +1064,13 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           setBets(msg.bets || []);
           setTimeLeft(msg.timeLeft || 10);
           if (msg.history) setHistory(msg.history);
+
+          // При старте раунда — держим голубой цвет 1 секунду, потом плавно темнеем
+          if (msg.phase === 'flying' && prevPhase === 'betting') {
+            setBgFrozen(true);
+            if (bgFrozenTimer.current) clearTimeout(bgFrozenTimer.current);
+            bgFrozenTimer.current = setTimeout(() => setBgFrozen(false), 1000);
+          }
 
           if (msg.phase === 'betting') {
             // Только если это реальная смена фазы — сбрасываем
@@ -1229,14 +1238,14 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
   };
   const getBg = () => {
     if (crashed) return 'linear-gradient(to bottom,#1a0000,#050005)';
-    // В фазе betting держим стартовый голубой без анимации
-    const p = skyP;
+    // Держим голубой цвет в начале раунда
+    const p = bgFrozen ? 0.085 : skyP;
     const stops = [
-      { p: 0.00, top: '#6ab4d8', bot: '#8ecfed' },
-      { p: 0.15, top: '#3a7ab8', bot: '#5a9fd4' },
-      { p: 0.40, top: '#0d2255', bot: '#1a3a8e' },
-      { p: 0.65, top: '#050f2e', bot: '#080e3a' },
-      { p: 1.00, top: '#000000', bot: '#020510' },
+      { p: 0.085, top: '#6ab4d8', bot: '#8ecfed' },
+      { p: 0.20,  top: '#3a7ab8', bot: '#5a9fd4' },
+      { p: 0.40,  top: '#0d2255', bot: '#1a3a8e' },
+      { p: 0.65,  top: '#050f2e', bot: '#080e3a' },
+      { p: 1.00,  top: '#000000', bot: '#020510' },
     ];
     let s0 = stops[0], s1 = stops[stops.length-1];
     for (let i = 0; i < stops.length-1; i++) {
@@ -1295,7 +1304,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
 
   return (
     <div className="rocket-game-page">
-      <div className="rocket-window" style={{ background: getBg(), transition: phase === 'crashed' ? 'background 0.5s ease' : phase === 'betting' ? 'background 1.5s ease' : 'background 1.2s ease', position: 'relative' }}>
+      <div className="rocket-window" style={{ background: getBg(), transition: crashed ? 'background 0.3s ease' : 'background 1.5s ease', position: 'relative' }}>
         {showRedFlash && <div className="crash-flash" />}
         <div className="rw-static-stars" style={{ opacity: Math.min(skyP * 3, 1) }}>
           {[...Array(28)].map((_, i) => (
