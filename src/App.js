@@ -533,13 +533,6 @@ function GamesPage({ setPage, telegramUser }) {
   return (
     <div className="page games-page">
       <h2>Игры</h2>
-      <div style={{background:'#1a1a2e',borderRadius:12,padding:'10px',marginBottom:16,fontSize:11,color:'#aaa',wordBreak:'break-all'}}>
-        <div>ID: {telegramUser?.id}</div>
-        <div>username: {telegramUser?.username}</div>
-        <div>firstName: {telegramUser?.firstName}</div>
-        <div>initData: {tg?.initData ? tg.initData.slice(0,60)+'...' : 'ПУСТО'}</div>
-        <div>platform: {tg?.platform || 'нет'}</div>
-      </div>
       <div style={{ marginBottom: '25px', width: '100%' }}>
         <div className="game-button" onClick={() => setPage('cases')}>
           <img src={casesImage} alt="Кейсы" className="game-button-image" draggable="false" />
