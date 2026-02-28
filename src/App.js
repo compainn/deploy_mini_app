@@ -576,6 +576,42 @@ function CasesPage({ setPage, setSelectedCase }) {
 }
 
 // ============================================================
+//  Попап результата кейса
+// ============================================================
+function ResultPopup({ prize, rewardImages, tonLogo, onClose }) {
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState(null);
+  const [dragDir, setDragDir] = useState('');
+
+  const onDragStart = (e) => { const y = e.touches ? e.touches[0].clientY : e.clientY; setDragStart(y); setIsDragging(true); setDragDir(''); };
+  const onDragMove = (e) => { if (!isDragging || dragStart === null) return; const dy = (e.touches ? e.touches[0].clientY : e.clientY) - dragStart; if (Math.abs(dy) > 3) setDragDir(dy > 0 ? 'down' : 'up'); if (dy > 0) setDragY(dy); };
+  const onDragEnd = () => { if (dragY > 100) onClose(); setDragY(0); setIsDragging(false); setDragStart(null); setDragDir(''); };
+
+  return (
+    <div className="popup-overlay" onClick={onClose}>
+      <div className="popup-content" onClick={e => e.stopPropagation()}
+        style={{ paddingBottom: 30, transform: `translateY(${dragY}px)`, transition: dragY === 0 ? 'transform 0.3s ease' : 'none' }}
+        onMouseDown={onDragStart} onMouseMove={onDragMove} onMouseUp={onDragEnd} onMouseLeave={onDragEnd}
+        onTouchStart={onDragStart} onTouchMove={onDragMove} onTouchEnd={onDragEnd}>
+        <div className={`drag-bar ${isDragging && dragDir === 'down' ? 'drag-down' : isDragging && dragDir === 'up' ? 'drag-up' : ''}`} style={{ background: '#0088cc' }} />
+        <div style={{ textAlign: 'center', padding: '10px 0 20px' }}>
+          <img
+            src={rewardImages[prize.imageKey] || tonLogo}
+            alt={prize.name}
+            style={{ width: 100, height: 100, borderRadius: 20, objectFit: 'cover', border: '2px solid #0088cc', marginBottom: 16 }}
+          />
+          <p style={{ color: 'white', fontSize: 24, fontWeight: 700, marginBottom: 0 }}>
+            {prize.type === 'item' ? 'NFT' : prize.name}
+          </p>
+        </div>
+        <button className="open-case-btn" onClick={onClose} style={{ marginTop: 0 }}>Забрать</button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 //  Попап с информацией о кейсе
 // ============================================================
 function CaseInfoPopup({ onClose }) {
@@ -858,28 +894,12 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
 
       {/* Попап результата */}
       {showResultPopup && prize && (
-        <div className="popup-overlay" onClick={() => setShowResultPopup(false)}>
-          <div className="popup-content" onClick={e => e.stopPropagation()} style={{ paddingBottom: 30 }}>
-            <div className="drag-bar"></div>
-            <div style={{ textAlign: 'center', padding: '10px 0 20px' }}>
-              <img
-                src={rewardImages[prize.imageKey] || tonLogo}
-                alt={prize.name}
-                style={{ width: 100, height: 100, borderRadius: 20, objectFit: 'cover', border: '2px solid #0088cc', marginBottom: 16 }}
-              />
-              <p style={{ color: 'white', fontSize: 24, fontWeight: 700, marginBottom: 0 }}>
-                {prize.type === 'item' ? 'NFT' : prize.name}
-              </p>
-            </div>
-            <button
-              className="open-case-btn"
-              onClick={() => setShowResultPopup(false)}
-              style={{ marginTop: 0 }}
-            >
-              Забрать
-            </button>
-          </div>
-        </div>
+        <ResultPopup
+          prize={prize}
+          rewardImages={rewardImages}
+          tonLogo={tonLogo}
+          onClose={() => setShowResultPopup(false)}
+        />
       )}
     </div>
   );
