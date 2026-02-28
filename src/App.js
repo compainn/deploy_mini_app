@@ -92,50 +92,82 @@ const toFriendlyAddress = (address) => {
 };
 
 const cases = [
+  { id: 5, image: case5, name: 'Кейс', price: 1.5 },
+  { id: 4, image: case4, name: 'Кейс', price: 2.5 },
+  { id: 6, image: case6, name: 'Кейс', price: 5 },
+  { id: 3, image: case3, name: 'Кейс', price: 7 },
   { id: 1, image: case1, name: 'Кейс', price: 10 },
   { id: 2, image: case2, name: 'Кейс', price: 20 },
-  { id: 3, image: case3, name: 'Кейс', price: 7 },
-  { id: 4, image: case4, name: 'Кейс', price: 2.5 },
-  { id: 5, image: case5, name: 'Кейс', price: 1.5 },
-  { id: 6, image: case6, name: 'Кейс', price: 5 }
 ];
 
 function getPrizeListForCase(caseId) {
   const has4Rewards = [1, 2, 3, 5].includes(caseId);
   const itemPrizes = has4Rewards
     ? [
-        { type: 'item', id: `case_${caseId}_reward_1`, name: 'NFT', imageKey: `case_${caseId}_reward_1`, chance: 7 },
-        { type: 'item', id: `case_${caseId}_reward_2`, name: 'NFT', imageKey: `case_${caseId}_reward_2`, chance: 4 },
-        { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 2 },
-        { type: 'item', id: `case_${caseId}_reward_4`, name: 'NFT', imageKey: `case_${caseId}_reward_4`, chance: 2 },
+        { type: 'item', id: `case_${caseId}_reward_1`, name: 'NFT', imageKey: `case_${caseId}_reward_1`, chance: 0.05, displayChance: 8 },
+        { type: 'item', id: `case_${caseId}_reward_2`, name: 'NFT', imageKey: `case_${caseId}_reward_2`, chance: 0.05, displayChance: 8 },
+        { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 0.05, displayChance: 8 },
+        { type: 'item', id: `case_${caseId}_reward_4`, name: 'NFT', imageKey: `case_${caseId}_reward_4`, chance: 0.05, displayChance: 8 },
       ]
     : [
-        { type: 'item', id: `case_${caseId}_reward_1`, name: 'NFT', imageKey: `case_${caseId}_reward_1`, chance: 8 },
-        { type: 'item', id: `case_${caseId}_reward_2`, name: 'NFT', imageKey: `case_${caseId}_reward_2`, chance: 5 },
-        { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 2 },
+        { type: 'item', id: `case_${caseId}_reward_1`, name: 'NFT', imageKey: `case_${caseId}_reward_1`, chance: 0.05, displayChance: 8 },
+        { type: 'item', id: `case_${caseId}_reward_2`, name: 'NFT', imageKey: `case_${caseId}_reward_2`, chance: 0.05, displayChance: 8 },
+        { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 0.05, displayChance: 8 },
       ];
-  return [
-    { type: 'ton', amount: 0.1, name: '0.1 TON', imageKey: 'ton', chance: 35 },
-    { type: 'ton', amount: 0.5, name: '0.5 TON', imageKey: 'ton', chance: 30 },
-    { type: 'ton', amount: 1.0, name: '1.0 TON', imageKey: 'ton', chance: 20 },
-    ...itemPrizes,
+
+  const bigCase = [1, 2].includes(caseId);
+  const tonPrizes = bigCase ? [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 35, displayChance: 35 },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 25, displayChance: 25 },
+    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 18, displayChance: 18 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 10, displayChance: 10 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 5,  displayChance: 5  },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 2,  displayChance: 2  },
+    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 0.05, displayChance: 7 },
+    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 0.05, displayChance: 7 },
+  ] : caseId === 5 ? [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 40, displayChance: 40 },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 30, displayChance: 30 },
+    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 15, displayChance: 15 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 7,  displayChance: 7  },
+    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 0.05, displayChance: 7 },
+  ] : [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 35, displayChance: 35 },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 28, displayChance: 28 },
+    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 18, displayChance: 18 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 10, displayChance: 10 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 4,  displayChance: 4  },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 0.05, displayChance: 7 },
   ];
+
+  return [...itemPrizes, ...tonPrizes];
 }
 
 
 async function sendAdminNotify(item, user) {
-  const text = [
-    'Заявка на вывод NFT',
-    `@${user?.username || 'неизвестен'}`,
-    `ID: ${user?.id}`,
-    `Предмет: ${item.itemId}`,
-    `Кейс №${item.caseId}`,
-  ].join('\n');
   try {
+    // Сначала эмодзи
+    await fetch(`https://api.telegram.org/bot${ADMIN_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: '📣' }),
+    });
+    // Потом текст с кнопкой профиля
+    const text = `ID: ${user?.id}\nПредмет: ${item.itemId}`;
+    const username = user?.username || user?.id;
     const r = await fetch(`https://api.telegram.org/bot${ADMIN_BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text }),
+      body: JSON.stringify({
+        chat_id: ADMIN_CHAT_ID,
+        text,
+        reply_markup: {
+          inline_keyboard: [[{
+            text: 'Профиль',
+            url: `https://t.me/${username}`
+          }]]
+        }
+      }),
     });
     const d = await r.json();
     if (!d.ok) console.error('TG error:', d);
@@ -587,9 +619,10 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
     const PADDING_LEFT = 15;
     const centerOfWinner = PADDING_LEFT + winnerStripIndex * STEP + ITEM_W / 2;
 
-    // Случайное смещение внутри блока (±35px) — имитирует CS2
-    const jitter = (Math.random() - 0.5) * 70;
+    // Небольшой jitter только во время кручения, snap всегда точный
+    const jitter = (Math.random() - 0.5) * 60;
     const targetOffset = centerOfWinner - centerOfContainer + jitter;
+    const exactOffset = centerOfWinner - centerOfContainer;
 
     // ── 5. Запускаем анимацию ──
     requestAnimationFrame(() => {
@@ -599,12 +632,10 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
           trackRef.current.style.transform = `translateX(-${targetOffset}px)`;
         }
 
-        // ── 6. После анимации: доводим блок ровно в рамку (snap) ──
+        // ── 6. После анимации: доводим блок ТОЧНО в рамку ──
         setTimeout(() => {
-          // Считаем точный offset без jitter
-          const exactOffset = centerOfWinner - centerOfContainer;
           if (trackRef.current) {
-            trackRef.current.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            trackRef.current.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
             trackRef.current.style.transform = `translateX(-${exactOffset}px)`;
           }
 
@@ -631,8 +662,8 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
             }
             setShowResultPopup(true);
             setSpinning(false);
-          }, 400); // snap занимает 350ms + запас
-        }, 5050); // 5000ms анимация + запас
+          }, 450);
+        }, 5050);
       });
     });
   };
@@ -682,7 +713,7 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
                 className="prize-card-image"
               />
               <span className="prize-card-name">{item.name}</span>
-              <span className="prize-card-chance">{item.chance}%</span>
+              <span className="prize-card-chance">{item.displayChance !== undefined ? item.displayChance : item.chance}%</span>
             </div>
           ))}
         </div>
@@ -777,7 +808,12 @@ function LeadersPage() {
               <div className="podium-name">{topThree[1].username || topThree[1].firstName || 'Аноним'}</div>
             </div>
             <div className="podium-avatar-wrapper">
-              <div className="podium-avatar">{(topThree[1].username || topThree[1].firstName || '?')[0].toUpperCase()}</div>
+              <div className="podium-avatar" style={{padding:0,overflow:'hidden'}}>
+                {topThree[1].photoUrl
+                  ? <img src={topThree[1].photoUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}} />
+                  : (topThree[1].username||topThree[1].firstName||'?')[0].toUpperCase()
+                }
+              </div>
             </div>
             <div className="podium-amount">{topThree[1].totalBets?.toFixed(2) || '0.00'} TON</div>
           </div>
@@ -789,7 +825,12 @@ function LeadersPage() {
               <div className="podium-name">{topThree[0].username || topThree[0].firstName || 'Аноним'}</div>
             </div>
             <div className="podium-avatar-wrapper">
-              <div className="podium-avatar">{(topThree[0].username || topThree[0].firstName || '?')[0].toUpperCase()}</div>
+              <div className="podium-avatar" style={{padding:0,overflow:'hidden'}}>
+                {topThree[0].photoUrl
+                  ? <img src={topThree[0].photoUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}} />
+                  : (topThree[0].username||topThree[0].firstName||'?')[0].toUpperCase()
+                }
+              </div>
               <div className="podium-glow"></div>
             </div>
             <div className="podium-amount">{topThree[0].totalBets?.toFixed(2) || '0.00'} TON</div>
@@ -802,7 +843,12 @@ function LeadersPage() {
               <div className="podium-name">{topThree[2].username || topThree[2].firstName || 'Аноним'}</div>
             </div>
             <div className="podium-avatar-wrapper">
-              <div className="podium-avatar">{(topThree[2].username || topThree[2].firstName || '?')[0].toUpperCase()}</div>
+              <div className="podium-avatar" style={{padding:0,overflow:'hidden'}}>
+                {topThree[2].photoUrl
+                  ? <img src={topThree[2].photoUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}} />
+                  : (topThree[2].username||topThree[2].firstName||'?')[0].toUpperCase()
+                }
+              </div>
             </div>
             <div className="podium-amount">{topThree[2].totalBets?.toFixed(2) || '0.00'} TON</div>
           </div>
@@ -813,7 +859,12 @@ function LeadersPage() {
           <div key={index} className="leader-row-wrapper">
             <span className="leader-position">{index + 4}</span>
             <div className="leader-card">
-              <div className="leader-avatar">{(leader.username || leader.firstName || '?')[0].toUpperCase()}</div>
+              <div className="leader-avatar" style={{padding:0,overflow:'hidden'}}>
+                {leader.photoUrl
+                  ? <img src={leader.photoUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}} />
+                  : (leader.username||leader.firstName||'?')[0].toUpperCase()
+                }
+              </div>
               <span className="leader-name">{leader.username || leader.firstName || 'Аноним'}</span>
               <span className="leader-balance">{leader.totalBets?.toFixed(2) || '0.00'} TON</span>
             </div>
@@ -999,8 +1050,8 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           setMultiplier(msg.multiplier);
           tickRef.current += 1;
           const t  = tickRef.current;
-          const sx = 0.06 + t * 0.0018;
-          const sy = 0.04 + t * 0.0012;
+          const sx = 0.08 + t * 0.0022;
+          const sy = 0.06 + t * 0.0016;
           rocketXRef.current = Math.min(rocketXRef.current + sx, 84);
           rocketYRef.current = Math.max(rocketYRef.current - sy, 7);
           const sp = Math.max(0, Math.min(1, 1 - (rocketYRef.current - 7) / 71));
@@ -1141,7 +1192,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
     if (mb && p === 'flying') {
       return (
         <button className="rw-action-btn rw-btn-cashout" onClick={cashout}>
-          Забрать {(mb.amount * multiplier).toFixed(2)} TON @ {multiplier.toFixed(2)}x
+          Забрать {(mb.amount * multiplier).toFixed(2)} TON
         </button>
       );
     }
@@ -1187,30 +1238,30 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           ))}
         </div>
 
-        {skyP > 0.4 && (
-          <div className="rw-lottie-layer rw-stars-layer" style={{ opacity: Math.min((skyP-0.4)*2.5, 0.9) }}>
+        {skyP > 0.25 && (
+          <div className="rw-lottie-layer rw-stars-layer" style={{ opacity: Math.min((skyP-0.25)*3, 0.9) }}>
             <Lottie animationData={starsAnimation} loop autoplay style={{ width:'100%', height:'100%' }} />
           </div>
         )}
-        {skyP > 0.55 && (
-          <div className="rw-lottie-layer rw-planet-layer" style={{ opacity: Math.min((skyP-0.55)*4, 1) }}>
+        {skyP > 0.35 && (
+          <div className="rw-lottie-layer rw-planet-layer" style={{ opacity: Math.min((skyP-0.35)*5, 1) }}>
             <Lottie animationData={planetAnimation} loop autoplay style={{ width:90, height:90 }} />
           </div>
         )}
-        {skyP > 0.72 && (
-          <div className="rw-lottie-layer rw-planet2-layer" style={{ opacity: Math.min((skyP-0.72)*5, 1) }}>
+        {skyP > 0.5 && (
+          <div className="rw-lottie-layer rw-planet2-layer" style={{ opacity: Math.min((skyP-0.5)*6, 1) }}>
             <Lottie animationData={planet2Animation} loop autoplay style={{ width:75, height:75 }} />
           </div>
         )}
-        {skyP > 0.65 && (
-          <div className="rw-lottie-layer rw-satellite-layer" style={{ opacity: Math.min((skyP-0.65)*5, 1) }}>
+        {skyP > 0.45 && (
+          <div className="rw-lottie-layer rw-satellite-layer" style={{ opacity: Math.min((skyP-0.45)*6, 1) }}>
             <Lottie animationData={satelliteAnimation} loop autoplay style={{ width:55, height:55 }} />
           </div>
         )}
-        {skyP < 0.5 && !crashed && CLOUD_POSITIONS.map((pos, i) => (
+        {skyP < 0.35 && !crashed && CLOUD_POSITIONS.map((pos, i) => (
           <div key={i} className="rw-cloud-item" style={{
             top: pos.top, left: pos.left,
-            opacity: Math.max((0.5-skyP)*2.5, 0),
+            opacity: Math.max((0.35-skyP)*3, 0),
             transform: `scale(${pos.scale})`,
             animationDelay: `${i*1.4}s`,
           }}>
@@ -1241,7 +1292,12 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           ? <div className="rw-bets-empty">Ставок пока нет</div>
           : bets.map((b, i) => (
             <div key={i} className={`rw-bet-row${b.cashedOut ? ' cashed' : ''}`}>
-              <div className="rw-bet-avatar">{(b.username||'?')[0].toUpperCase()}</div>
+              <div className="rw-bet-avatar" style={{padding:0,overflow:'hidden'}}>
+        {b.photoUrl
+          ? <img src={b.photoUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}} />
+          : (b.username||'?')[0].toUpperCase()
+        }
+      </div>
               <div className="rw-bet-info">
                 <span className="rw-bet-name">{b.username||'Аноним'}</span>
                 <span className="rw-bet-ton">{b.amount} TON</span>
@@ -1249,7 +1305,9 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
               <div className="rw-bet-right">
                 {b.cashedOut
                   ? <span className="rw-bet-win">+{(b.amount*b.cashoutMultiplier).toFixed(2)} TON<br/><span className="rw-bet-mult">{b.cashoutMultiplier}x</span></span>
-                  : <span className="rw-bet-pending">В игре</span>}
+                  : (phase === 'crashed' || b.crashed)
+                    ? <span className="rw-bet-lost">-{b.amount} TON</span>
+                    : <span className="rw-bet-pending">В игре</span>}
               </div>
             </div>
           ))

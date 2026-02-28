@@ -27,27 +27,49 @@ function getPrizeListForCase(caseId) {
   const has4Rewards = [1, 2, 3, 5].includes(caseId);
   const itemPrizes = has4Rewards
     ? [
-        { type: 'item', id: `case_${caseId}_reward_1`, name: 'Награда 1', imageKey: `case_${caseId}_reward_1`, chance: 7 },
-        { type: 'item', id: `case_${caseId}_reward_2`, name: 'Награда 2', imageKey: `case_${caseId}_reward_2`, chance: 4 },
-        { type: 'item', id: `case_${caseId}_reward_3`, name: 'Награда 3', imageKey: `case_${caseId}_reward_3`, chance: 2 },
-        { type: 'item', id: `case_${caseId}_reward_4`, name: 'Награда 4', imageKey: `case_${caseId}_reward_4`, chance: 2 },
+        { type: 'item', id: `case_${caseId}_reward_1`, name: 'NFT', imageKey: `case_${caseId}_reward_1`, chance: 0.05 },
+        { type: 'item', id: `case_${caseId}_reward_2`, name: 'NFT', imageKey: `case_${caseId}_reward_2`, chance: 0.05 },
+        { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 0.05 },
+        { type: 'item', id: `case_${caseId}_reward_4`, name: 'NFT', imageKey: `case_${caseId}_reward_4`, chance: 0.05 },
       ]
     : [
-        { type: 'item', id: `case_${caseId}_reward_1`, name: 'Награда 1', imageKey: `case_${caseId}_reward_1`, chance: 8 },
-        { type: 'item', id: `case_${caseId}_reward_2`, name: 'Награда 2', imageKey: `case_${caseId}_reward_2`, chance: 5 },
-        { type: 'item', id: `case_${caseId}_reward_3`, name: 'Награда 3', imageKey: `case_${caseId}_reward_3`, chance: 2 },
+        { type: 'item', id: `case_${caseId}_reward_1`, name: 'NFT', imageKey: `case_${caseId}_reward_1`, chance: 0.05 },
+        { type: 'item', id: `case_${caseId}_reward_2`, name: 'NFT', imageKey: `case_${caseId}_reward_2`, chance: 0.05 },
+        { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 0.05 },
       ];
-  return [
-    { type: 'ton', amount: 0.1, name: '0.1 TON', imageKey: 'ton', chance: 35 },
-    { type: 'ton', amount: 0.5, name: '0.5 TON', imageKey: 'ton', chance: 30 },
-    { type: 'ton', amount: 1.0, name: '1.0 TON', imageKey: 'ton', chance: 20 },
-    ...itemPrizes,
+
+  const bigCase = [1, 2].includes(caseId);
+  const tonPrizes = bigCase ? [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 35 },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 25 },
+    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 18 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 10 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 5  },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 2  },
+    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 0.05 },
+    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 0.05 },
+  ] : caseId === 5 ? [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 40 },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 30 },
+    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 15 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 7  },
+    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 0.05 },
+  ] : [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 35 },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 28 },
+    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 18 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 10 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 4  },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 0.05 },
   ];
+
+  return [...tonPrizes, ...itemPrizes];
 }
 
 // Выбирает приз по шансам на сервере
 function rollPrize(prizeList) {
-  const rand = Math.random() * 100;
+  const total = prizeList.reduce((s, i) => s + i.chance, 0);
+  const rand = Math.random() * total;
   let cum = 0;
   for (const item of prizeList) {
     cum += item.chance;
@@ -242,9 +264,20 @@ router.get('/leaders', async (req, res) => {
       where: { totalBets: { [Sequelize.Op.gt]: 0 } },
       order: [['totalBets', 'DESC']],
       limit: 100,
-      attributes: ['username', 'firstName', 'walletAddressFriendly', 'totalBets', 'totalGames', 'totalWins']
+      attributes: ['username', 'firstName', 'photoUrl', 'walletAddressFriendly', 'totalBets', 'totalGames', 'totalWins']
     });
     res.json(leaders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.delete('/inventory/:id', async (req, res) => {
+  try {
+    const item = await InventoryItem.findByPk(req.params.id);
+    if (!item) return res.status(404).json({ error: 'Item not found' });
+    await item.destroy();
+    res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
