@@ -4,7 +4,6 @@ import rocketAnimation from './assets/animations/rocket.json';
 import cloudsAnimation from './assets/animations/clouds.json';
 import planetAnimation from './assets/animations/planet.json';
 import starsAnimation from './assets/animations/stars.json';
-import meteorAnimation from './assets/animations/meteor.json';
 import satelliteAnimation from './assets/animations/satellite.json';
 import planet2Animation from './assets/animations/planet2.json';
 import planeAnimation from './assets/animations/plane.json';
@@ -1361,7 +1360,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
         {/* Метеориты — после исчезновения спутника */}
         {showMeteors && nloPhase === 0 && (
           <div className="rw-lottie-layer rw-meteor-layer" style={{ opacity: Math.min((skyP-0.55)*5, 0.85) }}>
-            <Lottie animationData={meteorAnimation} loop autoplay style={{ width:'100%', height:'100%' }} />
+            <Lottie animationData={starsAnimation} loop autoplay style={{ width:'100%', height:'100%' }} />
           </div>
         )}
         {/* 4 НЛО — появляются по очереди плавно */}
