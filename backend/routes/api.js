@@ -77,6 +77,7 @@ function getPrizeListForCase(caseId) {
     { type: 'item', id: 'case_3_reward_1', name: 'NFT', imageKey: 'case_3_reward_1', chance: 0.01 },
     { type: 'item', id: 'case_3_reward_2', name: 'NFT', imageKey: 'case_3_reward_2', chance: 0.01 },
     { type: 'item', id: 'case_3_reward_3', name: 'NFT', imageKey: 'case_3_reward_3', chance: 0.01 },
+    { type: 'item', id: 'case_3_reward_4', name: 'NFT', imageKey: 'case_3_reward_4', chance: 0.01 },
   ];
 
   // id1 = кейс 10 TON (добавляем 15 TON)
