@@ -1271,7 +1271,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
 
   return (
     <div className="rocket-game-page">
-      <div className="rocket-window" style={{ background: getBg(), transition: phase === 'flying' ? 'background 1.2s ease' : 'none', position: 'relative' }}>
+      <div className="rocket-window" style={{ background: getBg(), transition: phase === 'crashed' ? 'background 0.5s ease' : phase === 'betting' ? 'background 1.5s ease' : 'background 1.2s ease', position: 'relative' }}>
         {showRedFlash && <div className="crash-flash" />}
         <div className="rw-static-stars" style={{ opacity: Math.min(skyP * 3, 1) }}>
           {[...Array(28)].map((_, i) => (
