@@ -1105,6 +1105,12 @@ body {
 @keyframes toastIn  { from { opacity: 0; transform: translateX(-50%) translateY(-8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
 
+.global-toast {
+  top: 20px;
+  color: rgba(255,255,255,0.9);
+  border-color: rgba(255,255,255,0.15);
+}
+
 /* ── bet-error (убираем inline) ── */
 .rw-bet-error { display: none; }
 
@@ -1144,16 +1150,15 @@ body {
   z-index: 3;
 }
 .rw-planet2-layer {
-  bottom: 25px;
-  right: 18px;
-  left: auto;
+  bottom: 30px;
+  left: 18%;
   z-index: 3;
 }
-/* 4 НЛО в разных углах */
-.rw-nlo-1 { top: 8px;  left: 10px;  z-index: 5; animation: nloFloat 3s ease-in-out infinite; }
-.rw-nlo-2 { top: 8px;  right: 10px; z-index: 5; animation: nloFloat 3.5s ease-in-out infinite 0.5s; }
-.rw-nlo-3 { bottom: 30px; left: 10px;  z-index: 5; animation: nloFloat 4s ease-in-out infinite 1s; }
-.rw-nlo-4 { bottom: 30px; right: 10px; z-index: 5; animation: nloFloat 2.8s ease-in-out infinite 1.5s; }
+/* НЛО — центр + по бокам чуть ниже */
+.rw-nlo-1 { top: 28%; left: 50%; transform: translateX(-50%); z-index: 5; animation: nloFloat 3s ease-in-out infinite; }
+.rw-nlo-2 { top: 45%; left: 18%;  z-index: 5; animation: nloFloat 3.5s ease-in-out infinite 0.3s; }
+.rw-nlo-3 { top: 45%; right: 18%; z-index: 5; animation: nloFloat 4s ease-in-out infinite 0.6s; }
+.rw-nlo-4 { top: 62%; left: 50%; transform: translateX(-50%); z-index: 5; animation: nloFloat 2.8s ease-in-out infinite 0.9s; }
 @keyframes nloFloat {
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-6px); }
@@ -1466,7 +1471,7 @@ body {
   max-width: 400px;
   background: #1C1C1E;
   border-radius: 24px 24px 0 0;
-  padding: 10px 20px 36px;
+  padding: 18px 20px 36px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1521,7 +1526,7 @@ body {
   max-width: 400px;
   background: #1C1C1E;
   border-radius: 24px 24px 0 0;
-  padding: 10px 20px 36px;
+  padding: 18px 20px 36px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -1559,12 +1564,13 @@ body {
 .amount-section { display: flex; flex-direction: column; gap: 8px; }
 .amount-input {
   width: 100%;
+  box-sizing: border-box;
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 16px;
-  padding: 14px 18px;
+  border-radius: 24px;
+  padding: 10px 18px;
   color: white;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   outline: none;
   -webkit-user-select: text !important;
@@ -1575,15 +1581,18 @@ body {
   background: #0088cc;
   border: none;
   border-radius: 24px;
-  padding: 16px;
+  padding: 14px;
   color: white;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
+  width: 100%;
 }
 .continue-btn:active { opacity: 0.85; transform: scale(0.98); }
-.min-amount-inside { font-size: 11px; opacity: 0.6; font-weight: 500; }
+.min-amount-inside { display: none; }
+.currency-min-hint {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  font-weight: 500;
+  margin-left: auto;
+}
