@@ -203,6 +203,13 @@ function MainApp() {
   const [dragDir, setDragDir] = useState('');
   const [selectedCase, setSelectedCase] = useState(null);
   const [inventory, setInventory] = useState([]);
+  const [globalToast, setGlobalToast] = useState('');
+  const globalToastTimer = useRef(null);
+  const showToast = (msg) => {
+    setGlobalToast(msg);
+    if (globalToastTimer.current) clearTimeout(globalToastTimer.current);
+    globalToastTimer.current = setTimeout(() => setGlobalToast(''), 2000);
+  };
 
   useEffect(() => {
     if (wallet?.account?.address) {
@@ -300,7 +307,7 @@ function MainApp() {
   };
 
   const handleDeposit = async () => {
-    if (!amount || parseFloat(amount) < 0.01) { alert('Минимальная сумма 0.01 TON'); return; }
+    if (!amount || parseFloat(amount) < 0.01) { showToast('Минимальная сумма 0.01 TON'); return; }
     try {
       const result = await tonConnectUI.sendTransaction({
         validUntil: Date.now() + 600000,
@@ -317,12 +324,13 @@ function MainApp() {
       setAmount('');
     } catch (error) {
       console.error('Ошибка пополнения:', error);
-      alert('Ошибка при пополнении');
+      showToast('Ошибка при пополнении');
     }
   };
 
   return (
     <div className="app">
+      {globalToast && <div className="rw-bet-toast global-toast">{globalToast}</div>}
       <Header
         wallet={wallet}
         telegramUser={telegramUser}
@@ -351,6 +359,7 @@ function MainApp() {
             userBalance={userBalance}
             setUserBalance={setUserBalance}
             telegramUser={telegramUser}
+            showToast={showToast}
             loadInventory={loadInventory}
           />
         )}
@@ -373,11 +382,12 @@ function MainApp() {
             onTouchEnd={handleDragEnd}
           >
             <div className={`drag-bar ${dragging && dragDir === 'down' ? 'drag-down' : dragging && dragDir === 'up' ? 'drag-up' : ''}`}></div>
+            <div className="popup-header"><h3>Пополнить</h3></div>
             <div className="currency-section">
               <div className="currency-btn active">
                 <img src={tonLogo} alt="TON" className="currency-icon-img" />
                 <span className="currency-name">Toncoin</span>
-                <span className="currency-badge">без комиссии</span>
+                <span className="currency-min-hint">Мин 0.01 TON</span>
               </div>
             </div>
             <div className="amount-section">
@@ -390,8 +400,7 @@ function MainApp() {
               />
             </div>
             <button className="continue-btn" onClick={handleDeposit}>
-              <span>Пополнить</span>
-              <span className="min-amount-inside">Минимум 0.01 TON</span>
+              Пополнить
             </button>
           </div>
         </div>
@@ -537,7 +546,7 @@ const STRIP_REPEAT = 80;  // количество повторений (длин
 // ============================================================
 //  CaseOpenPage — открытие кейса с серверным рандомом и CS2-рамкой
 // ============================================================
-function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegramUser, loadInventory }) {
+function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegramUser, loadInventory, showToast }) {
   const prizeList = getPrizeListForCase(caseData.id);
 
   // Строим длинную ленту один раз
@@ -561,7 +570,7 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
 
   const openCase = async () => {
     if (spinning) return;
-    if (userBalance < caseData.price) { alert('Недостаточно средств'); return; }
+    if (userBalance < caseData.price) { showToast('Недостаточно средств'); return; }
 
     setSpinning(true);
     setPrize(null);
@@ -985,7 +994,8 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
   const [crashMult, setCrashMult]     = useState(null);
   const [betError, setBetError]       = useState('');
   const [showPlane, setShowPlane]     = useState(false);
-  const [showNLO, setShowNLO]         = useState(false);
+  const [nloPhase, setNloPhase]       = useState(0); // 0=hidden, 1-4 = each NLO appears
+  const nloTriggered                  = useRef(false);
   const betErrorTimer = useRef(null);
   const showBetError = (msg) => {
     setBetError(msg);
@@ -1047,7 +1057,8 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
               setMyBet(null);
               setMyCashedOut(false);
               setLastWin(null);
-              setShowNLO(false);
+              setNloPhase(0);
+              nloTriggered.current = false;
               setShowPlane(false);
               doReset();
             }
@@ -1091,9 +1102,13 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
             setShowPlane(true);
             setTimeout(() => setShowPlane(false), 1800);
           }
-          // НЛО появляются после 25x
-          if (msg.multiplier >= 25 && !showNLO) {
-            setShowNLO(true);
+          // НЛО появляются после 25x по очереди
+          if (msg.multiplier >= 25 && !nloTriggered.current) {
+            nloTriggered.current = true;
+            setNloPhase(1);
+            setTimeout(() => setNloPhase(2), 400);
+            setTimeout(() => setNloPhase(3), 800);
+            setTimeout(() => setNloPhase(4), 1200);
           }
         }
 
@@ -1141,7 +1156,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
             setMyBet(null);
           }
           console.log('[ERROR]', msg.text, 'alreadyPlaced=', alreadyPlaced);
-          if (!alreadyPlaced) alert(msg.text);
+          if (!alreadyPlaced) showBetError(msg.text);
         }
       };
 
@@ -1196,9 +1211,9 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
   const getBg = () => {
     if (crashed) return 'linear-gradient(to bottom,#1a0000,#050005)';
     const stops = [
-      { p: 0.00, top: '#5baad6', bot: '#87ceeb' },
-      { p: 0.20, top: '#2a5fa8', bot: '#4a90d4' },
-      { p: 0.45, top: '#0d2255', bot: '#1a3a8e' },
+      { p: 0.00, top: '#6ab4d8', bot: '#8ecfed' },
+      { p: 0.15, top: '#3a7ab8', bot: '#5a9fd4' },
+      { p: 0.40, top: '#0d2255', bot: '#1a3a8e' },
       { p: 0.65, top: '#050f2e', bot: '#080e3a' },
       { p: 1.00, top: '#000000', bot: '#020510' },
     ];
@@ -1259,7 +1274,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
 
   return (
     <div className="rocket-game-page">
-      <div className="rocket-window" style={{ background: getBg(), transition: 'background 1.5s ease', position: 'relative' }}>
+      <div className="rocket-window" style={{ background: getBg(), transition: 'background 2.5s ease', position: 'relative' }}>
         {showRedFlash && <div className="crash-flash" />}
         <div className="rw-static-stars" style={{ opacity: Math.min(skyP * 3, 1) }}>
           {[...Array(28)].map((_, i) => (
@@ -1273,47 +1288,66 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           ))}
         </div>
 
-        {/* Звёзды и планеты — скрываются после 25x */}
-        {skyP > 0.25 && !showNLO && (
-          <div className="rw-lottie-layer rw-stars-layer" style={{ opacity: Math.min((skyP-0.25)*3, 0.9) }}>
+        {/* Звёзды — плавно исчезают при NLO */}
+        {skyP > 0.25 && (
+          <div className="rw-lottie-layer rw-stars-layer" style={{
+            opacity: nloPhase > 0
+              ? Math.max(1 - nloPhase * 0.35, 0)
+              : Math.min((skyP-0.25)*3, 0.9)
+          }}>
             <Lottie animationData={starsAnimation} loop autoplay style={{ width:'100%', height:'100%' }} />
           </div>
         )}
-        {skyP > 0.48 && !showNLO && (
-          <div className="rw-lottie-layer rw-planet-layer" style={{ opacity: Math.min((skyP-0.48)*6, 1) }}>
+        {/* Планета 1 — позже появляется, плавно исчезает */}
+        {skyP > 0.58 && (
+          <div className="rw-lottie-layer rw-planet-layer" style={{
+            opacity: nloPhase > 0
+              ? Math.max(1 - nloPhase * 0.5, 0)
+              : Math.min((skyP-0.58)*8, 1)
+          }}>
             <Lottie animationData={planetAnimation} loop autoplay style={{ width:90, height:90 }} />
           </div>
         )}
-        {skyP > 0.5 && !showNLO && (
-          <div className="rw-lottie-layer rw-planet2-layer" style={{ opacity: Math.min((skyP-0.5)*6, 1) }}>
+        {/* Планета 2 — левая часть ближе к середине */}
+        {skyP > 0.5 && (
+          <div className="rw-lottie-layer rw-planet2-layer" style={{
+            opacity: nloPhase > 0
+              ? Math.max(1 - nloPhase * 0.5, 0)
+              : Math.min((skyP-0.5)*6, 1)
+          }}>
             <Lottie animationData={planet2Animation} loop autoplay style={{ width:75, height:75 }} />
           </div>
         )}
-        {/* Спутник — появляется на 1-1.5 сек потом исчезает */}
-        {skyP > 0.32 && skyP < 0.55 && !showNLO && (
+        {/* Спутник — появляется и исчезает за ~1.5 сек */}
+        {skyP > 0.32 && skyP < 0.55 && nloPhase === 0 && (
           <div className="rw-lottie-layer rw-satellite-layer" style={{
-            opacity: skyP > 0.32 && skyP < 0.42 ? Math.min((skyP-0.32)*10, 1)
-                   : Math.max((0.55-skyP)*7, 0)
+            opacity: skyP < 0.42
+              ? Math.min((skyP-0.32)*10, 1)
+              : Math.max((0.55-skyP)*7, 0)
           }}>
             <Lottie animationData={satelliteAnimation} loop autoplay style={{ width:55, height:55 }} />
           </div>
         )}
-        {/* 4 НЛО после 25x */}
-        {showNLO && (
-          <>
-            <div className="rw-lottie-layer rw-nlo-1">
-              <Lottie animationData={nloAnimation} loop autoplay style={{ width:50, height:50 }} />
-            </div>
-            <div className="rw-lottie-layer rw-nlo-2">
-              <Lottie animationData={nloAnimation} loop autoplay style={{ width:44, height:44 }} />
-            </div>
-            <div className="rw-lottie-layer rw-nlo-3">
-              <Lottie animationData={nloAnimation} loop autoplay style={{ width:56, height:56 }} />
-            </div>
-            <div className="rw-lottie-layer rw-nlo-4">
-              <Lottie animationData={nloAnimation} loop autoplay style={{ width:40, height:40 }} />
-            </div>
-          </>
+        {/* 4 НЛО — появляются по очереди плавно */}
+        {nloPhase >= 1 && (
+          <div className="rw-lottie-layer rw-nlo-1" style={{ opacity: Math.min((nloPhase - 0) * 0.8, 1), transition: 'opacity 0.4s ease' }}>
+            <Lottie animationData={nloAnimation} loop autoplay style={{ width:65, height:65 }} />
+          </div>
+        )}
+        {nloPhase >= 2 && (
+          <div className="rw-lottie-layer rw-nlo-2" style={{ opacity: Math.min((nloPhase - 1) * 0.8, 1), transition: 'opacity 0.4s ease' }}>
+            <Lottie animationData={nloAnimation} loop autoplay style={{ width:60, height:60 }} />
+          </div>
+        )}
+        {nloPhase >= 3 && (
+          <div className="rw-lottie-layer rw-nlo-3" style={{ opacity: Math.min((nloPhase - 2) * 0.8, 1), transition: 'opacity 0.4s ease' }}>
+            <Lottie animationData={nloAnimation} loop autoplay style={{ width:58, height:58 }} />
+          </div>
+        )}
+        {nloPhase >= 4 && (
+          <div className="rw-lottie-layer rw-nlo-4" style={{ opacity: 1, transition: 'opacity 0.4s ease' }}>
+            <Lottie animationData={nloAnimation} loop autoplay style={{ width:55, height:55 }} />
+          </div>
         )}
         {skyP < 0.35 && !crashed && CLOUD_POSITIONS.map((pos, i) => (
           <div key={i} className="rw-cloud-item" style={{
