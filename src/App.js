@@ -118,20 +118,23 @@ function getPrizeListForCase(caseId) {
         { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 0.05, displayChance: 8 },
       ];
 
-  // ВАЖНО: суммы одинаковые для всех кейсов — только шансы разные
-  // Это гарантирует что лента и сервер всегда синхронизированы
+  // ПОЛНЫЙ набор TON-призов — ВСЕГДА все суммы присутствуют в ленте
+  // chance используется только для roll на сервере
+  const bigCase = [1, 2].includes(caseId);
   const tonPrizes = [
-    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: caseId === 5 ? 3  : [1,2].includes(caseId) ? 3  : 5  },
-    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: caseId === 5 ? 7  : [1,2].includes(caseId) ? 5  : 8  },
-    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: caseId === 5 ? 10 : [1,2].includes(caseId) ? 7  : 12 },
-    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: caseId === 5 ? 15 : [1,2].includes(caseId) ? 8  : 15 },
-    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: caseId === 5 ? 25 : [1,2].includes(caseId) ? 10 : 20 },
-    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: caseId === 5 ? 22 : [1,2].includes(caseId) ? 15 : 22 },
-    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: caseId === 5 ? 15 : [1,2].includes(caseId) ? 20 : 15 },
-    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: caseId === 5 ? 3  : [1,2].includes(caseId) ? 15 : 3  },
-    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: caseId === 5 ? 0  : [1,2].includes(caseId) ? 12 : 0  },
-    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: caseId === 5 ? 0  : [1,2].includes(caseId) ? 5  : 0  },
-  ].filter(p => p.chance > 0);
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: caseId === 5 ? 3  : bigCase ? 3  : 5  },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: caseId === 5 ? 7  : bigCase ? 5  : 8  },
+    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: caseId === 5 ? 10 : bigCase ? 7  : 12 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: caseId === 5 ? 15 : bigCase ? 8  : 15 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: caseId === 5 ? 25 : bigCase ? 10 : 20 },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: caseId === 5 ? 22 : bigCase ? 15 : 22 },
+    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: caseId === 5 ? 15 : bigCase ? 20 : 15 },
+    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: caseId === 5 ? 3  : bigCase ? 15 : 3  },
+    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: bigCase ? 12 : 0.01 },
+    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: bigCase ? 5  : 0.01 },
+  ];
+  // Все суммы ВСЕГДА в списке (chance > 0 даже если очень маленький)
+  // Это гарантирует что лента всегда содержит нужный элемент
 
   return [...itemPrizes, ...tonPrizes];
 }
@@ -594,19 +597,40 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
     setPrize(winner);
 
     // ── 3. Ищем подходящий блок в ленте ──
-    //    Целевая зона: середина ленты (~40й повтор из 80)
+    //    Целевая зона: середина ленты (~55й повтор из 80)
     const targetRepeat = Math.floor(STRIP_REPEAT * 0.55);
     const targetBase = targetRepeat * prizeList.length;
 
-    let winnerStripIndex = targetBase;
-    for (let i = targetBase; i < targetBase + prizeList.length * 3; i++) {
+    let winnerStripIndex = -1;
+    // Ищем в зоне targetBase + 10 повторений
+    for (let i = targetBase; i < targetBase + prizeList.length * 10; i++) {
       const item = strip[i];
-      if (item && item.type === winner.type && item.imageKey === winner.imageKey) {
-        // Для TON-призов дополнительно проверяем сумму
+      if (!item) continue;
+      if (item.type !== winner.type) continue;
+      if (item.type === 'ton' && item.amount !== winner.amount) continue;
+      if (item.type === 'item' && item.id !== winner.id) continue;
+      winnerStripIndex = i;
+      break;
+    }
+
+    // Если не нашли — ищем по всей ленте начиная с targetBase
+    if (winnerStripIndex === -1) {
+      console.warn('[STRIP] Not found in zone, searching full strip. winner:', winner);
+      for (let i = targetBase; i < strip.length; i++) {
+        const item = strip[i];
+        if (!item) continue;
+        if (item.type !== winner.type) continue;
         if (item.type === 'ton' && item.amount !== winner.amount) continue;
+        if (item.type === 'item' && item.id !== winner.id) continue;
         winnerStripIndex = i;
         break;
       }
+    }
+
+    // Крайний fallback — не должен случаться
+    if (winnerStripIndex === -1) {
+      console.error('[STRIP] Winner not found at all! winner:', winner, 'prizeList:', prizeList.map(p => p.amount || p.id));
+      winnerStripIndex = targetBase;
     }
     setWinnerIndex(winnerStripIndex);
 
