@@ -41,31 +41,6 @@ function getPrizeListForCase(caseId) {
         { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 0.05 },
       ];
 
-<<<<<<< HEAD
-  const bigCase = [1, 2].includes(caseId);
-  const tonPrizes = bigCase ? [
-    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 35 },
-    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 25 },
-    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 18 },
-    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 10 },
-    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 5  },
-    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 2  },
-    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 0.05 },
-    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 0.05 },
-  ] : caseId === 5 ? [
-    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 40 },
-    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 30 },
-    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 15 },
-    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 7  },
-    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 0.05 },
-  ] : [
-    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 35 },
-    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 28 },
-    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 18 },
-    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 10 },
-    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 4  },
-    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 0.05 },
-=======
   // ПОЛНЫЙ набор TON-призов — те же суммы что на ленте фронта
   const bigCase = [1, 2].includes(caseId);
   const tonPrizes = [
@@ -313,7 +288,4 @@ router.delete('/inventory/:id', async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
-module.exports = router;
-=======
 module.exports = router;
