@@ -1097,10 +1097,10 @@ body {
   padding: 8px 20px;
   border-radius: 20px;
   border: 1px solid rgba(255,60,60,0.3);
-  z-index: 999;
+  z-index: 9999;
   pointer-events: none;
   white-space: nowrap;
-  animation: toastIn 0.2s ease, toastOut 0.3s ease 1.2s forwards;
+  animation: toastIn 0.2s ease forwards, toastOut 0.3s ease 1.7s forwards;
 }
 /* Глобальный toast — серый нейтральный */
 .rw-bet-toast.global-toast {
