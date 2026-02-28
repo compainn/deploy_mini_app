@@ -79,7 +79,6 @@ function getPrizeListForCase(caseId) {
     { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: caseId === 5 ? 3  : bigCase ? 15 : 3  },
     { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: bigCase ? 12 : 0.01 },
     { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: bigCase ? 5  : 0.01 },
->>>>>>> 698e7dc76fec26bbb1e415e2a4771dd798530f9c
   ];
 
   return [...tonPrizes, ...itemPrizes];
@@ -318,4 +317,3 @@ router.delete('/inventory/:id', async (req, res) => {
 module.exports = router;
 =======
 module.exports = router;
->>>>>>> 698e7dc76fec26bbb1e415e2a4771dd798530f9c
