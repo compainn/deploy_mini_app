@@ -1,171 +1,77 @@
+/* DepositPopup.css */
+/* ВАЖНО: drag-bar стили управляются из App.css */
+/* Этот файл намеренно переопределяет старую полоску */
+
 .popup-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  z-index: 1000;
 }
 
 .popup-content {
-  background: #1C1C1E;
   width: 100%;
   max-width: 400px;
-  border-radius: 30px 30px 0 0;
-  padding: 20px 20px 30px;
-  animation: slideUp 0.3s ease;
-  transform: translateY(0);
+  background: #1C1C1E;
+  border-radius: 24px 24px 0 0;
+  padding: 10px 20px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  touch-action: none;
   transition: transform 0.3s ease;
 }
 
-.popup-content.dragging {
-  transition: none;
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-.drag-bar {
-  width: 60px;
-  height: 6px;
-  background: #3A3A3C;
-  border-radius: 3px;
-  margin: 0 auto 20px;
-  cursor: grab;
-  touch-action: none;
-}
-
-.drag-bar:active {
-  cursor: grabbing;
-}
-
-.popup-header {
-  text-align: center;
-  margin-bottom: 24px;
-}
+.popup-content.dragging { transition: none; }
 
 .popup-header h3 {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 700;
   color: white;
+  text-align: center;
   margin: 0;
 }
 
-.currency-section {
-  margin-bottom: 24px;
-}
+.currency-section { display: flex; flex-direction: column; gap: 8px; }
 
 .currency-btn {
-  background: #2C2C2E;
-  border: 2px solid #2C2C2E;
-  border-radius: 20px;
-  padding: 16px;
   display: flex;
   align-items: center;
   gap: 12px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 12px 16px;
+  border: 2px solid transparent;
   cursor: pointer;
-  width: 100%;
 }
 
-.currency-btn.active {
-  border-color: #0088cc;
-}
-
-.currency-icon-img {
-  width: 28px;
-  height: 28px;
-  border-radius: 14px;
-  object-fit: cover;
-}
-
-.currency-name {
-  font-size: 17px;
-  font-weight: 600;
-  color: white;
-  flex: 1;
-}
-
+.currency-btn.active { border-color: #0088cc; }
+.currency-icon-img { width: 32px; height: 32px; border-radius: 50%; }
+.currency-name { font-size: 15px; font-weight: 600; color: white; flex: 1; }
 .currency-badge {
-  font-size: 13px;
-  font-weight: 600;
-  color: #8E8E93;
+  font-size: 11px; font-weight: 600; color: #0088cc;
+  background: rgba(0,136,204,0.15); padding: 3px 8px; border-radius: 10px;
 }
 
-.amount-section {
-  margin-bottom: 16px;
-}
+.amount-section { display: flex; flex-direction: column; gap: 8px; }
 
 .amount-input {
-  background: #2C2C2E;
-  border: 2px solid #2C2C2E;
-  border-radius: 40px;
-  padding: 10px 16px;
-  width: 100%;
-  color: white;
-  font-size: 18px;
-  font-weight: 600;
-  outline: none;
-  height: 44px;
+  width: 100%; box-sizing: border-box;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px; padding: 14px 18px;
+  color: white; font-size: 18px; font-weight: 600; outline: none;
+  -webkit-user-select: text !important; user-select: text !important;
 }
-
-.amount-input:focus {
-  border-color: #0088cc;
-}
-
-.amount-input::placeholder {
-  color: #8E8E93;
-  font-weight: 500;
-}
-
-.amount-input[type=number] {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
-
-.amount-input[type=number]::-webkit-inner-spin-button,
-.amount-input[type=number]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  appearance: none;
-  margin: 0;
-  display: none;
-}
+.amount-input::placeholder { color: rgba(255,255,255,0.25); }
 
 .continue-btn {
-  width: 100%;
-  background: #0088cc;
-  border: none;
-  border-radius: 20px;
-  padding: 12px;
-  color: white;
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
+  background: #0088cc; border: none; border-radius: 24px; padding: 16px;
+  color: white; font-size: 16px; font-weight: 700; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%;
 }
-
-.min-amount-inside {
-  font-size: 12px;
-  font-weight: 600;
-  opacity: 0.7;
-}
-
-.continue-btn:active {
-  transform: scale(0.98);
-  background: #006699;
-}
+.continue-btn:active { opacity: 0.85; transform: scale(0.98); }
+.min-amount-inside { font-size: 11px; opacity: 0.6; font-weight: 500; }
