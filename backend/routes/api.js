@@ -41,19 +41,20 @@ function getPrizeListForCase(caseId) {
         { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 0.05 },
       ];
 
-  // ВАЖНО: суммы одинаковые для всех кейсов — только шансы разные
+  // ПОЛНЫЙ набор TON-призов — те же суммы что на ленте фронта
+  const bigCase = [1, 2].includes(caseId);
   const tonPrizes = [
-    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: caseId === 5 ? 3  : [1,2].includes(caseId) ? 3  : 5  },
-    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: caseId === 5 ? 7  : [1,2].includes(caseId) ? 5  : 8  },
-    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: caseId === 5 ? 10 : [1,2].includes(caseId) ? 7  : 12 },
-    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: caseId === 5 ? 15 : [1,2].includes(caseId) ? 8  : 15 },
-    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: caseId === 5 ? 25 : [1,2].includes(caseId) ? 10 : 20 },
-    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: caseId === 5 ? 22 : [1,2].includes(caseId) ? 15 : 22 },
-    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: caseId === 5 ? 15 : [1,2].includes(caseId) ? 20 : 15 },
-    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: caseId === 5 ? 3  : [1,2].includes(caseId) ? 15 : 3  },
-    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: caseId === 5 ? 0  : [1,2].includes(caseId) ? 12 : 0  },
-    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: caseId === 5 ? 0  : [1,2].includes(caseId) ? 5  : 0  },
-  ].filter(p => p.chance > 0);
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: caseId === 5 ? 3  : bigCase ? 3  : 5  },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: caseId === 5 ? 7  : bigCase ? 5  : 8  },
+    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: caseId === 5 ? 10 : bigCase ? 7  : 12 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: caseId === 5 ? 15 : bigCase ? 8  : 15 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: caseId === 5 ? 25 : bigCase ? 10 : 20 },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: caseId === 5 ? 22 : bigCase ? 15 : 22 },
+    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: caseId === 5 ? 15 : bigCase ? 20 : 15 },
+    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: caseId === 5 ? 3  : bigCase ? 15 : 3  },
+    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: bigCase ? 12 : 0.01 },
+    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: bigCase ? 5  : 0.01 },
+  ];
 
   return [...tonPrizes, ...itemPrizes];
 }
