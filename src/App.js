@@ -589,23 +589,18 @@ function ResultPopup({ prize, rewardImages, tonLogo, onClose }) {
   const onDragEnd = () => { if (dragY > 100) onClose(); setDragY(0); setIsDragging(false); setDragStart(null); setDragDir(''); };
 
   return (
-    <div className="popup-overlay" onClick={onClose}>
-      <div className="popup-content" onClick={e => e.stopPropagation()}
-        style={{ paddingBottom: 30, transform: `translateY(${dragY}px)`, transition: dragY === 0 ? 'transform 0.3s ease' : 'none' }}
+    <div className="inv-overlay" onClick={onClose}>
+      <div className="inv-popup"
+        style={{ transform: `translateY(${dragY}px)`, transition: dragY === 0 ? 'transform 0.3s ease' : 'none' }}
+        onClick={e => e.stopPropagation()}
         onMouseDown={onDragStart} onMouseMove={onDragMove} onMouseUp={onDragEnd} onMouseLeave={onDragEnd}
         onTouchStart={onDragStart} onTouchMove={onDragMove} onTouchEnd={onDragEnd}>
-        <div className={`drag-bar ${isDragging && dragDir === 'down' ? 'drag-down' : isDragging && dragDir === 'up' ? 'drag-up' : ''}`} style={{ background: '#0088cc' }} />
-        <div style={{ textAlign: 'center', padding: '10px 0 20px' }}>
-          <img
-            src={rewardImages[prize.imageKey] || tonLogo}
-            alt={prize.name}
-            style={{ width: 100, height: 100, borderRadius: 20, objectFit: 'cover', border: '2px solid #0088cc', marginBottom: 16 }}
-          />
-          <p style={{ color: 'white', fontSize: 24, fontWeight: 700, marginBottom: 0 }}>
-            {prize.type === 'item' ? 'NFT' : prize.name}
-          </p>
+        <div className={`drag-bar ${isDragging && dragDir === 'down' ? 'drag-down' : isDragging && dragDir === 'up' ? 'drag-up' : ''}`} />
+        <div className="inv-img-box">
+          <img src={rewardImages[prize.imageKey] || tonLogo} alt={prize.name} className="inv-popup-img" />
         </div>
-        <button className="open-case-btn" onClick={onClose} style={{ marginTop: 0 }}>Забрать</button>
+        <span className="inv-nft-label">{prize.type === 'item' ? 'NFT' : prize.name}</span>
+        <button className="inv-withdraw-btn" onClick={onClose}>Забрать</button>
       </div>
     </div>
   );
