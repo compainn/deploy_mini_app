@@ -4,6 +4,7 @@ import rocketAnimation from './assets/animations/rocket.json';
 import cloudsAnimation from './assets/animations/clouds.json';
 import planetAnimation from './assets/animations/planet.json';
 import starsAnimation from './assets/animations/stars.json';
+import meteorAnimation from './assets/animations/meteor.json';
 import satelliteAnimation from './assets/animations/satellite.json';
 import planet2Animation from './assets/animations/planet2.json';
 import planeAnimation from './assets/animations/plane.json';
@@ -117,35 +118,83 @@ function getPrizeListForCase(caseId) {
         { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 0.05, displayChance: 8 },
       ];
 
-  const bigCase = [1, 2].includes(caseId);
-  const tonPrizes = bigCase ? [
-    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 10, displayChance: 10 },
-    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 15, displayChance: 15 },
-    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 15, displayChance: 15 },
-    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 20, displayChance: 20 },
-    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 18, displayChance: 18 },
-    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 12, displayChance: 12 },
-    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 7,  displayChance: 7  },
-    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 0.05, displayChance: 5 },
-    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 0.05, displayChance: 5 },
-  ] : caseId === 5 ? [
-    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 10, displayChance: 10 },
-    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 20, displayChance: 20 },
-    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 25, displayChance: 25 },
-    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 22, displayChance: 22 },
-    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 15, displayChance: 15 },
-    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 5,  displayChance: 5  },
-    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 0.05, displayChance: 3 },
-  ] : [
-    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 10, displayChance: 10 },
-    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 18, displayChance: 18 },
-    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 22, displayChance: 22 },
-    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 22, displayChance: 22 },
-    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 15, displayChance: 15 },
-    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 8,  displayChance: 8  },
-    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 3,  displayChance: 3  },
-    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 0.05, displayChance: 3 },
-  ];
+  // Призы по кейсам (chance = реальный шанс, сумма не обязана = 100%)
+  // Цены кейсов: id5=1.5 id4=2.5 id6=5 id3=7 id1=10 id2=20 TON
+  // Правило: ~35% шанс выпасть БОЛЬШЕ цены кейса
+
+  let tonPrizes;
+
+  if (caseId === 5) {
+    // Кейс 1.5 TON — выпасть > 1.5 должно с ~35% (2+ TON)
+    tonPrizes = [
+      { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 15 },
+      { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 25 },
+      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 22 },
+      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 22 }, // >1.5 начинается
+      { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 10 },
+      { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 3,  displayChance: 5 },
+    ];
+  } else if (caseId === 4) {
+    // Кейс 2.5 TON — выпасть > 2.5 должно с ~35% (3+ TON)
+    tonPrizes = [
+      { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 10 },
+      { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 20 },
+      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 20 },
+      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 15 },
+      { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 22 }, // >2.5 начинается
+      { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 10 },
+      { type: 'ton', amount: 7.0,  name: '7 TON',    imageKey: 'ton', chance: 3,  displayChance: 5 },
+    ];
+  } else if (caseId === 6) {
+    // Кейс 5 TON — выпасть > 5 должно с ~35% (6+ TON)
+    tonPrizes = [
+      { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 10 },
+      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 15 },
+      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 20 },
+      { type: 'ton', amount: 4.0,  name: '4 TON',    imageKey: 'ton', chance: 20 },
+      { type: 'ton', amount: 6.0,  name: '6 TON',    imageKey: 'ton', chance: 20 }, // >5 начинается
+      { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 12 },
+      { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 3,  displayChance: 5 },
+    ];
+  } else if (caseId === 3) {
+    // Кейс 7 TON — выпасть > 7 должно с ~35% (8+ TON)
+    tonPrizes = [
+      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 10 },
+      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 15 },
+      { type: 'ton', amount: 4.0,  name: '4 TON',    imageKey: 'ton', chance: 20 },
+      { type: 'ton', amount: 6.0,  name: '6 TON',    imageKey: 'ton', chance: 20 },
+      { type: 'ton', amount: 8.0,  name: '8 TON',    imageKey: 'ton', chance: 20 }, // >7 начинается
+      { type: 'ton', amount: 12.0, name: '12 TON',   imageKey: 'ton', chance: 12 },
+      { type: 'ton', amount: 20.0, name: '20 TON',   imageKey: 'ton', chance: 3,  displayChance: 5 },
+    ];
+  } else if (caseId === 1) {
+    // Кейс 10 TON — выпасть > 10 должно с ~35% (12+ TON)
+    tonPrizes = [
+      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 8  },
+      { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 12 },
+      { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 18 },
+      { type: 'ton', amount: 8.0,  name: '8 TON',    imageKey: 'ton', chance: 27 },
+      { type: 'ton', amount: 12.0, name: '12 TON',   imageKey: 'ton', chance: 20 }, // >10 начинается
+      { type: 'ton', amount: 18.0, name: '18 TON',   imageKey: 'ton', chance: 12 },
+      { type: 'ton', amount: 30.0, name: '30 TON',   imageKey: 'ton', chance: 3,  displayChance: 5 },
+    ];
+  } else if (caseId === 2) {
+    // Кейс 20 TON — выпасть > 20 должно с ~35% (25 TON = 35%)
+    tonPrizes = [
+      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 5  },
+      { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 10 },
+      { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 40 },
+      { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 10 },
+      { type: 'ton', amount: 25.0, name: '25 TON',   imageKey: 'ton', chance: 35 }, // >20 — главный приз
+    ];
+  } else {
+    tonPrizes = [
+      { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 20 },
+      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 35 },
+      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 35 },
+      { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 10 },
+    ];
+  }
 
   return [...itemPrizes, ...tonPrizes];
 }
@@ -204,9 +253,11 @@ function MainApp() {
   const [selectedCase, setSelectedCase] = useState(null);
   const [inventory, setInventory] = useState([]);
   const [globalToast, setGlobalToast] = useState('');
+  const [globalToastType, setGlobalToastType] = useState('');
   const globalToastTimer = useRef(null);
-  const showToast = (msg) => {
+  const showToast = (msg, type = '') => {
     setGlobalToast(msg);
+    setGlobalToastType(type);
     if (globalToastTimer.current) clearTimeout(globalToastTimer.current);
     globalToastTimer.current = setTimeout(() => setGlobalToast(''), 2000);
   };
@@ -330,7 +381,7 @@ function MainApp() {
 
   return (
     <div className="app">
-      {globalToast && <div className="rw-bet-toast global-toast">{globalToast}</div>}
+      {globalToast && <div className={`rw-bet-toast global-toast ${globalToastType === 'success' ? 'success-toast' : ''}`}>{globalToast}</div>}
       <Header
         wallet={wallet}
         telegramUser={telegramUser}
@@ -347,6 +398,7 @@ function MainApp() {
             setShowDepositPopup={setShowDepositPopup}
             inventory={inventory}
             setInventory={setInventory}
+            showToast={showToast}
           />
         )}
         {page === 'leaders' && <LeadersPage />}
@@ -891,7 +943,7 @@ function LeadersPage() {
   );
 }
 
-function ProfilePage({ telegramUser, userBalance, setShowDepositPopup, inventory, setInventory }) {
+function ProfilePage({ telegramUser, userBalance, setShowDepositPopup, inventory, setInventory, showToast }) {
   const [selectedItem, setSelectedItem] = React.useState(null);
   const [dragY, setDragY] = React.useState(0);
   const [dragStart, setDragStart] = React.useState(null);
@@ -923,6 +975,7 @@ function ProfilePage({ telegramUser, userBalance, setShowDepositPopup, inventory
       await sendAdminNotify(selectedItem, telegramUser);
       setInventory(prev => prev.filter(i => i.id !== selectedItem.id));
       closePopup();
+      showToast('Заявка отправлена ✓', 'success');
     } catch (e) { console.error(e); }
     setWithdrawing(false);
   };
@@ -996,6 +1049,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
   const [showPlane, setShowPlane]     = useState(false);
   const [nloPhase, setNloPhase]       = useState(0); // 0=hidden, 1-4 = each NLO appears
   const nloTriggered                  = useRef(false);
+  const [showMeteors, setShowMeteors] = useState(false);
   const betErrorTimer = useRef(null);
   const showBetError = (msg) => {
     setBetError(msg);
@@ -1060,6 +1114,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
               setNloPhase(0);
               nloTriggered.current = false;
               setShowPlane(false);
+              setShowMeteors(false);
               doReset();
             }
           } else {
@@ -1097,6 +1152,8 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           setRocketX(rocketXRef.current);
           setRocketY(rocketYRef.current);
           setSkyP(sp);
+          // Метеориты после исчезновения спутника (skyP > 0.55)
+          if (sp > 0.55 && !showMeteors) setShowMeteors(true);
           // Самолёт пролетает один раз при ~1.5x
           if (msg.multiplier >= 1.45 && msg.multiplier <= 1.55 && t < 50) {
             setShowPlane(true);
@@ -1210,6 +1267,8 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
   };
   const getBg = () => {
     if (crashed) return 'linear-gradient(to bottom,#1a0000,#050005)';
+    // В фазе betting держим стартовый голубой без анимации
+    const p = skyP;
     const stops = [
       { p: 0.00, top: '#6ab4d8', bot: '#8ecfed' },
       { p: 0.15, top: '#3a7ab8', bot: '#5a9fd4' },
@@ -1219,9 +1278,9 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
     ];
     let s0 = stops[0], s1 = stops[stops.length-1];
     for (let i = 0; i < stops.length-1; i++) {
-      if (skyP >= stops[i].p && skyP <= stops[i+1].p) { s0 = stops[i]; s1 = stops[i+1]; break; }
+      if (p >= stops[i].p && p <= stops[i+1].p) { s0 = stops[i]; s1 = stops[i+1]; break; }
     }
-    const t = s1.p === s0.p ? 0 : (skyP - s0.p) / (s1.p - s0.p);
+    const t = s1.p === s0.p ? 0 : (p - s0.p) / (s1.p - s0.p);
     return `linear-gradient(to bottom,${lerpColor(s0.top,s1.top,t)},${lerpColor(s0.bot,s1.bot,t)})`;
   };
 
@@ -1274,7 +1333,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
 
   return (
     <div className="rocket-game-page">
-      <div className="rocket-window" style={{ background: getBg(), transition: 'background 2.5s ease', position: 'relative' }}>
+      <div className="rocket-window" style={{ background: getBg(), transition: phase === 'flying' ? 'background 1.2s ease' : 'none', position: 'relative' }}>
         {showRedFlash && <div className="crash-flash" />}
         <div className="rw-static-stars" style={{ opacity: Math.min(skyP * 3, 1) }}>
           {[...Array(28)].map((_, i) => (
@@ -1326,6 +1385,12 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
               : Math.max((0.55-skyP)*7, 0)
           }}>
             <Lottie animationData={satelliteAnimation} loop autoplay style={{ width:55, height:55 }} />
+          </div>
+        )}
+        {/* Метеориты — после исчезновения спутника */}
+        {showMeteors && nloPhase === 0 && (
+          <div className="rw-lottie-layer rw-meteor-layer" style={{ opacity: Math.min((skyP-0.55)*5, 0.85) }}>
+            <Lottie animationData={meteorAnimation} loop autoplay style={{ width:'100%', height:'100%' }} />
           </div>
         )}
         {/* 4 НЛО — появляются по очереди плавно */}
