@@ -301,28 +301,24 @@ body {
 /* Крестик вместо стрелки назад */
 .close-btn {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  background: rgba(255,255,255,0.1);
+  top: 10px;
+  left: 10px;
+  background: none;
   border: none;
   color: white;
   width: 32px;
   height: 32px;
-  border-radius: 16px;
-  font-size: 18px;
+  font-size: 24px;
+  font-weight: 900;
   cursor: pointer;
   z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.2);
+  opacity: 0.75;
+  line-height: 1;
 }
-
-.close-btn:active {
-  transform: scale(0.95);
-  background: rgba(255,255,255,0.2);
-}
+.close-btn:active { opacity: 1; transform: scale(0.9); }
 
 .wheel-section {
   position: relative;
@@ -1148,9 +1144,19 @@ body {
   z-index: 3;
 }
 .rw-planet2-layer {
-  bottom: 8px;
-  left: 10px;
+  bottom: 25px;
+  right: 18px;
+  left: auto;
   z-index: 3;
+}
+/* 4 НЛО в разных углах */
+.rw-nlo-1 { top: 8px;  left: 10px;  z-index: 5; animation: nloFloat 3s ease-in-out infinite; }
+.rw-nlo-2 { top: 8px;  right: 10px; z-index: 5; animation: nloFloat 3.5s ease-in-out infinite 0.5s; }
+.rw-nlo-3 { bottom: 30px; left: 10px;  z-index: 5; animation: nloFloat 4s ease-in-out infinite 1s; }
+.rw-nlo-4 { bottom: 30px; right: 10px; z-index: 5; animation: nloFloat 2.8s ease-in-out infinite 1.5s; }
+@keyframes nloFloat {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
 }
 .rw-clouds-layer {
   inset: 0;
