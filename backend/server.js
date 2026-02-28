@@ -18,6 +18,63 @@ app.use("/api", apiRoutes);
 app.post('/webhook', async (req, res) => {
   res.sendStatus(200);
   try {
+    // Обработка нажатия кнопки "Подарок"
+    const cq = req.body?.callback_query;
+    if (cq && cq.data?.startsWith('gift:')) {
+      const parts = cq.data.split(':');
+      const itemId = parts[1]; // например case_1_reward_1
+      const chatId = cq.message.chat.id;
+
+      // Маппинг itemId -> URL фото (фото из public папки или внешние URL)
+      const BASE = 'https://deploy-mini-app.vercel.app/rewards';
+      const giftPhotos = {
+        'case_1_reward_1': `${BASE}/case_1_reward_1.jpg`,
+        'case_1_reward_2': `${BASE}/case_1_reward_2.jpg`,
+        'case_1_reward_3': `${BASE}/case_1_reward_3.jpg`,
+        'case_1_reward_4': `${BASE}/case_1_reward_4.jpg`,
+        'case_2_reward_1': `${BASE}/case_2_reward_1.jpg`,
+        'case_2_reward_2': `${BASE}/case_2_reward_2.jpg`,
+        'case_2_reward_3': `${BASE}/case_2_reward_3.jpg`,
+        'case_2_reward_4': `${BASE}/case_2_reward_4.jpg`,
+        'case_3_reward_1': `${BASE}/case_3_reward_1.jpg`,
+        'case_3_reward_2': `${BASE}/case_3_reward_2.jpg`,
+        'case_3_reward_3': `${BASE}/case_3_reward_3.jpg`,
+        'case_3_reward_4': `${BASE}/case_3_reward_4.jpg`,
+        'case_4_reward_1': `${BASE}/case_4_reward_1.jpg`,
+        'case_4_reward_2': `${BASE}/case_4_reward_2.jpg`,
+        'case_4_reward_3': `${BASE}/case_4_reward_3.jpg`,
+        'case_5_reward_1': `${BASE}/case_5_reward_1.jpg`,
+        'case_5_reward_2': `${BASE}/case_5_reward_2.jpg`,
+        'case_5_reward_3': `${BASE}/case_5_reward_3.jpg`,
+        'case_5_reward_4': `${BASE}/case_5_reward_4.jpg`,
+        'case_6_reward_1': `${BASE}/case_6_reward_1.jpg`,
+        'case_6_reward_2': `${BASE}/case_6_reward_2.jpg`,
+        'case_6_reward_3': `${BASE}/case_6_reward_3.jpg`,
+      };
+
+      const photoUrl = giftPhotos[itemId];
+      if (photoUrl) {
+        await fetch(`${TG_API}/sendPhoto`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, photo: photoUrl, caption: `🎁 ${itemId}` }),
+        });
+      } else {
+        await fetch(`${TG_API}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, text: `❓ Фото для ${itemId} не найдено` }),
+        });
+      }
+      // Убираем "часики" с кнопки
+      await fetch(`${TG_API}/answerCallbackQuery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ callback_query_id: cq.id }),
+      });
+      return;
+    }
+
     const msg = req.body?.message;
     if (!msg) return;
 

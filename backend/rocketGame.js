@@ -17,6 +17,7 @@ let state = {
   bets: [],
   roundId: 0,
   timeLeft: 10,
+  history: [], // последние 7 краш-значений
 };
 
 // Храним клиентов с их telegramId для реконнекта
@@ -41,12 +42,14 @@ function getPublicState() {
     bets: state.bets.map(b => ({
       telegramId: b.telegramId,
       username: b.username,
+      photoUrl: b.photoUrl || null,
       amount: b.amount,
       cashedOut: b.cashedOut,
       cashoutMultiplier: b.cashoutMultiplier,
     })),
     roundId: state.roundId,
     timeLeft: state.timeLeft,
+    history: state.history,
   };
 }
 
@@ -98,12 +101,17 @@ function startFlying() {
 async function crash() {
   state.phase = 'crashed';
   state.multiplier = state.crashAt;
+  // Сохраняем в историю последних 7 раундов
+  state.history.unshift(state.crashAt);
+  if (state.history.length > 7) state.history.pop();
   console.log(`[ROCKET] CRASH at ${state.crashAt}x`);
   broadcast({
     type: 'crash',
     crashAt: state.crashAt,
+    history: state.history,
     bets: state.bets.map(b => ({
       username: b.username,
+      photoUrl: b.photoUrl || null,
       amount: b.amount,
       cashedOut: b.cashedOut,
       cashoutMultiplier: b.cashoutMultiplier,
@@ -184,6 +192,7 @@ function initRocketWS(server) {
           state.bets.push({
             telegramId,
             username: username || 'Аноним',
+            photoUrl: user.photoUrl || null,
             amount,
             cashedOut: false,
             cashoutMultiplier: null,
@@ -201,7 +210,7 @@ function initRocketWS(server) {
       // ── Кешаут ──
       if (msg.type === 'cashout') {
         if (state.phase !== 'flying') {
-          wsClient.send(JSON.stringify({ type: 'error', text: 'Нельзя вывести сейчас' }));
+          // Тихо игнорируем — не показываем алерт пользователю
           return;
         }
 

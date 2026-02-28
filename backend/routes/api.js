@@ -3,6 +3,9 @@ const router = express.Router();
 const { User, Transaction, InventoryItem } = require('../models/User');
 const { Sequelize } = require('sequelize');
 
+// Хранит результат roll до вызова open (ключ: telegramId)
+const pendingRolls = new Map();
+
 const convertToFriendlyAddress = (rawAddress) => {
   if (!rawAddress) return null;
   if (rawAddress.startsWith('UQ') || rawAddress.startsWith('EQ')) return rawAddress;
@@ -38,6 +41,7 @@ function getPrizeListForCase(caseId) {
         { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 0.05 },
       ];
 
+<<<<<<< HEAD
   const bigCase = [1, 2].includes(caseId);
   const tonPrizes = bigCase ? [
     { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 35 },
@@ -61,6 +65,21 @@ function getPrizeListForCase(caseId) {
     { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 10 },
     { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 4  },
     { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 0.05 },
+=======
+  // ПОЛНЫЙ набор TON-призов — те же суммы что на ленте фронта
+  const bigCase = [1, 2].includes(caseId);
+  const tonPrizes = [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: caseId === 5 ? 3  : bigCase ? 3  : 5  },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: caseId === 5 ? 7  : bigCase ? 5  : 8  },
+    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: caseId === 5 ? 10 : bigCase ? 7  : 12 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: caseId === 5 ? 15 : bigCase ? 8  : 15 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: caseId === 5 ? 25 : bigCase ? 10 : 20 },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: caseId === 5 ? 22 : bigCase ? 15 : 22 },
+    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: caseId === 5 ? 15 : bigCase ? 20 : 15 },
+    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: caseId === 5 ? 3  : bigCase ? 15 : 3  },
+    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: bigCase ? 12 : 0.01 },
+    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: bigCase ? 5  : 0.01 },
+>>>>>>> 698e7dc76fec26bbb1e415e2a4771dd798530f9c
   ];
 
   return [...tonPrizes, ...itemPrizes];
@@ -85,14 +104,17 @@ function rollPrize(prizeList) {
 // ============================================================
 router.post('/case/roll', async (req, res) => {
   try {
-    const { telegramId, caseId } = req.body;
+    const { telegramId } = req.body;
+    const caseId = parseInt(req.body.caseId, 10); // ВАЖНО: всегда число
     const user = await User.findOne({ where: { telegramId } });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     const prizeList = getPrizeListForCase(caseId);
     const prize = rollPrize(prizeList);
 
-    // Возвращаем приз — он будет использован для анимации и для /case/open
+    // Сохраняем приз на сервере — фронт не может подменить
+    pendingRolls.set(String(telegramId), { prize, caseId, ts: Date.now() });
+
     res.json({ prize });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -200,10 +222,19 @@ router.post('/user/win', async (req, res) => {
 // ============================================================
 router.post('/case/open', async (req, res) => {
   try {
-    const { telegramId, caseId, casePrice, prize } = req.body;
+    const { telegramId, casePrice } = req.body;
+    const caseId = parseInt(req.body.caseId, 10); // ВАЖНО: всегда число
     const user = await User.findOne({ where: { telegramId } });
     if (!user) return res.status(404).json({ error: 'User not found' });
     if (user.balance < casePrice) return res.status(400).json({ error: 'Недостаточно средств' });
+
+    // Берём приз с сервера — игнорируем то что прислал фронт
+    const pending = pendingRolls.get(String(telegramId));
+    if (!pending || pending.caseId !== caseId) {
+      return res.status(400).json({ error: 'Roll not found — call /case/roll first' });
+    }
+    const prize = pending.prize;
+    pendingRolls.delete(String(telegramId)); // чистим после использования
 
     user.balance -= casePrice;
     user.totalBets += casePrice;
@@ -283,4 +314,8 @@ router.delete('/inventory/:id', async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
 module.exports = router;
+=======
+module.exports = router;
+>>>>>>> 698e7dc76fec26bbb1e415e2a4771dd798530f9c

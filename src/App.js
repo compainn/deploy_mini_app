@@ -4,8 +4,11 @@ import rocketAnimation from './assets/animations/rocket.json';
 import cloudsAnimation from './assets/animations/clouds.json';
 import planetAnimation from './assets/animations/planet.json';
 import starsAnimation from './assets/animations/stars.json';
+import meteorAnimation from './assets/animations/meteor.json';
 import satelliteAnimation from './assets/animations/satellite.json';
 import planet2Animation from './assets/animations/planet2.json';
+import planeAnimation from './assets/animations/plane.json';
+import nloAnimation from './assets/animations/NLO.json';
 import './App.css';
 import './components/DepositPopup.css';
 import { TonConnectUIProvider, TonConnectButton, useTonWallet, useTonConnectUI } from '@tonconnect/ui-react';
@@ -100,6 +103,10 @@ const cases = [
   { id: 2, image: case2, name: 'Кейс', price: 20 },
 ];
 
+// ============================================================
+//  FIX 1: getPrizeListForCase — убраны дубли, порядок совпадает
+//  с сервером, TON-призы с очень низким шансом скрыты из списка
+// ============================================================
 function getPrizeListForCase(caseId) {
   const has4Rewards = [1, 2, 3, 5].includes(caseId);
   const itemPrizes = has4Rewards
@@ -116,6 +123,7 @@ function getPrizeListForCase(caseId) {
       ];
 
   const bigCase = [1, 2].includes(caseId);
+<<<<<<< HEAD
   const tonPrizes = bigCase ? [
     { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 35, displayChance: 35 },
     { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 25, displayChance: 25 },
@@ -141,18 +149,47 @@ function getPrizeListForCase(caseId) {
   ];
 
   return [...itemPrizes, ...tonPrizes];
+=======
+
+  // Все TON-призы — для ленты должны быть все суммы
+  const tonPrizes = [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: caseId === 5 ? 3  : bigCase ? 3  : 5  },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: caseId === 5 ? 7  : bigCase ? 5  : 8  },
+    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: caseId === 5 ? 10 : bigCase ? 7  : 12 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: caseId === 5 ? 15 : bigCase ? 8  : 15 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: caseId === 5 ? 25 : bigCase ? 10 : 20 },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: caseId === 5 ? 22 : bigCase ? 15 : 22 },
+    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: caseId === 5 ? 15 : bigCase ? 20 : 15 },
+    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: caseId === 5 ? 3  : bigCase ? 15 : 3  },
+    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: bigCase ? 12 : 0.01 },
+    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: bigCase ? 5  : 0.01 },
+  ];
+
+  return [...itemPrizes, ...tonPrizes];
+}
+
+// Для отображения в "Возможные выигрыши" — скрываем призы с chance <= 0.01
+function getDisplayPrizeList(caseId) {
+  return getPrizeListForCase(caseId).filter(p => p.chance > 0.01);
+>>>>>>> 698e7dc76fec26bbb1e415e2a4771dd798530f9c
 }
 
 
 async function sendAdminNotify(item, user) {
   try {
+<<<<<<< HEAD
     // Сначала эмодзи
+=======
+>>>>>>> 698e7dc76fec26bbb1e415e2a4771dd798530f9c
     await fetch(`https://api.telegram.org/bot${ADMIN_BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: '📣' }),
     });
+<<<<<<< HEAD
     // Потом текст с кнопкой профиля
+=======
+>>>>>>> 698e7dc76fec26bbb1e415e2a4771dd798530f9c
     const text = `ID: ${user?.id}\nПредмет: ${item.itemId}`;
     const username = user?.username || user?.id;
     const r = await fetch(`https://api.telegram.org/bot${ADMIN_BOT_TOKEN}/sendMessage`, {
@@ -162,10 +199,17 @@ async function sendAdminNotify(item, user) {
         chat_id: ADMIN_CHAT_ID,
         text,
         reply_markup: {
+<<<<<<< HEAD
           inline_keyboard: [[{
             text: 'Профиль',
             url: `https://t.me/${username}`
           }]]
+=======
+          inline_keyboard: [[
+            { text: 'Профиль', url: `https://t.me/${username}` },
+            { text: '🎁 Подарок', callback_data: `gift:${item.itemId}:${ADMIN_CHAT_ID}` }
+          ]]
+>>>>>>> 698e7dc76fec26bbb1e415e2a4771dd798530f9c
         }
       }),
     });
@@ -193,9 +237,18 @@ function MainApp() {
   const [dragStart, setDragStart] = useState(null);
   const [dragOffset, setDragOffset] = useState(0);
   const [dragging, setDragging] = useState(false);
-  const [tonConnectUI] = useTonConnectUI();
+  const [dragDir, setDragDir] = useState('');
   const [selectedCase, setSelectedCase] = useState(null);
   const [inventory, setInventory] = useState([]);
+  const [globalToast, setGlobalToast] = useState('');
+  const [globalToastType, setGlobalToastType] = useState('');
+  const globalToastTimer = useRef(null);
+  const showToast = (msg, type = '') => {
+    setGlobalToast(msg);
+    setGlobalToastType(type);
+    if (globalToastTimer.current) clearTimeout(globalToastTimer.current);
+    globalToastTimer.current = setTimeout(() => setGlobalToast(''), 2500);
+  };
 
   useEffect(() => {
     if (wallet?.account?.address) {
@@ -275,12 +328,13 @@ function MainApp() {
   const handleDragStart = (e) => {
     setDragStart(e.touches ? e.touches[0].clientY : e.clientY);
     setDragging(true);
+    setDragDir('');
   };
   const handleDragMove = (e) => {
     if (!dragStart || !dragging) return;
-    let delta = (e.touches ? e.touches[0].clientY : e.clientY) - dragStart;
-    if (delta < 0) delta = 0;
-    setDragOffset(delta);
+    const rawDelta = (e.touches ? e.touches[0].clientY : e.clientY) - dragStart;
+    setDragDir(rawDelta > 3 ? 'down' : rawDelta < -3 ? 'up' : '');
+    setDragOffset(Math.max(0, rawDelta));
   };
   const handleDragEnd = (e) => {
     if (!dragStart || !dragging) return;
@@ -292,7 +346,7 @@ function MainApp() {
   };
 
   const handleDeposit = async () => {
-    if (!amount || parseFloat(amount) < 0.01) { alert('Минимальная сумма 0.01 TON'); return; }
+    if (!amount || parseFloat(amount) < 0.01) { showToast('Минимальная сумма 0.01 TON'); return; }
     try {
       const result = await tonConnectUI.sendTransaction({
         validUntil: Date.now() + 600000,
@@ -309,12 +363,21 @@ function MainApp() {
       setAmount('');
     } catch (error) {
       console.error('Ошибка пополнения:', error);
-      alert('Ошибка при пополнении');
+      showToast('Ошибка при пополнении');
     }
   };
 
   return (
     <div className="app">
+      {/* FIX 2: Toast теперь всегда поверх всего, z-index:9999, видим при любых попапах */}
+      {globalToast && (
+        <div
+          key={globalToast + globalToastType + Date.now()}
+          className={`rw-bet-toast global-toast${globalToastType === 'success' ? ' success-toast' : ''}`}
+        >
+          {globalToast}
+        </div>
+      )}
       <Header
         wallet={wallet}
         telegramUser={telegramUser}
@@ -331,6 +394,7 @@ function MainApp() {
             setShowDepositPopup={setShowDepositPopup}
             inventory={inventory}
             setInventory={setInventory}
+            showToast={showToast}
           />
         )}
         {page === 'leaders' && <LeadersPage />}
@@ -343,6 +407,7 @@ function MainApp() {
             userBalance={userBalance}
             setUserBalance={setUserBalance}
             telegramUser={telegramUser}
+            showToast={showToast}
             loadInventory={loadInventory}
           />
         )}
@@ -364,13 +429,13 @@ function MainApp() {
             onTouchMove={handleDragMove}
             onTouchEnd={handleDragEnd}
           >
-            <div className="drag-bar"></div>
+            <div className={`drag-bar ${dragging && dragDir === 'down' ? 'drag-down' : dragging && dragDir === 'up' ? 'drag-up' : ''}`}></div>
             <div className="popup-header"><h3>Пополнить</h3></div>
             <div className="currency-section">
               <div className="currency-btn active">
                 <img src={tonLogo} alt="TON" className="currency-icon-img" />
                 <span className="currency-name">Toncoin</span>
-                <span className="currency-badge">без комиссии</span>
+                <span className="currency-min-hint">Мин 0.01 TON</span>
               </div>
             </div>
             <div className="amount-section">
@@ -383,8 +448,7 @@ function MainApp() {
               />
             </div>
             <button className="continue-btn" onClick={handleDeposit}>
-              <span>Пополнить</span>
-              <span className="min-amount-inside">Минимум 0.01 TON</span>
+              Пополнить
             </button>
           </div>
         </div>
@@ -399,19 +463,20 @@ function Header({ wallet, telegramUser, userBalance, friendlyAddress, setShowDep
   const [dragStart, setDragStart] = useState(null);
   const [dragOffset, setDragOffset] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [dragDir, setDragDir] = useState('');
 
-  const handleDragStart = (e) => { setDragStart(e.touches ? e.touches[0].clientY : e.clientY); setDragging(true); };
+  const handleDragStart = (e) => { setDragStart(e.touches ? e.touches[0].clientY : e.clientY); setDragging(true); setDragDir(''); };
   const handleDragMove = (e) => {
     if (!dragStart || !dragging) return;
-    let delta = (e.touches ? e.touches[0].clientY : e.clientY) - dragStart;
-    if (delta < 0) delta = 0;
-    setDragOffset(delta);
+    const rawDelta = (e.touches ? e.touches[0].clientY : e.clientY) - dragStart;
+    setDragDir(rawDelta > 3 ? 'down' : rawDelta < -3 ? 'up' : '');
+    setDragOffset(Math.max(0, rawDelta));
   };
   const handleDragEnd = (e) => {
     if (!dragStart || !dragging) return;
     const delta = (e.changedTouches ? e.changedTouches[0].clientY : e.clientY) - dragStart;
     if (delta > 100) setShowWalletMenu(false);
-    setDragStart(null); setDragOffset(0); setDragging(false);
+    setDragStart(null); setDragOffset(0); setDragging(false); setDragDir('');
   };
 
   const disconnectWallet = async () => {
@@ -460,7 +525,7 @@ function Header({ wallet, telegramUser, userBalance, friendlyAddress, setShowDep
             onMouseUp={handleDragEnd} onMouseLeave={handleDragEnd}
             onTouchStart={handleDragStart} onTouchMove={handleDragMove} onTouchEnd={handleDragEnd}
           >
-            <div className="drag-bar"></div>
+            <div className={`drag-bar ${dragging && dragDir === 'down' ? 'drag-down' : dragging && dragDir === 'up' ? 'drag-up' : ''}`}></div>
             <div className="popup-header"><h3>Кошелек</h3></div>
             <div className="wallet-address-full">{displayAddress}</div>
             <button className="disconnect-btn" onClick={disconnectWallet}>Отвязать</button>
@@ -521,18 +586,19 @@ function CasesPage({ setPage, setSelectedCase }) {
 // ============================================================
 //  Константы ленты
 // ============================================================
-const ITEM_W = 100;      // ширина блока
-const GAP = 12;           // зазор между блоками
-const STEP = ITEM_W + GAP; // шаг = 112px
-const STRIP_REPEAT = 80;  // количество повторений (длинная лента)
+const ITEM_W = 100;
+const GAP = 12;
+const STEP = ITEM_W + GAP;
+const STRIP_REPEAT = 80;
 
 // ============================================================
-//  CaseOpenPage — открытие кейса с серверным рандомом и CS2-рамкой
+//  CaseOpenPage
 // ============================================================
-function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegramUser, loadInventory }) {
+function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegramUser, loadInventory, showToast }) {
+  // FIX 1: prizeList для ленты (все призы), displayPrizeList для отображения списка (без мизерных)
   const prizeList = getPrizeListForCase(caseData.id);
+  const displayPrizeList = getDisplayPrizeList(caseData.id);
 
-  // Строим длинную ленту один раз
   const strip = React.useMemo(() => {
     const arr = [];
     for (let i = 0; i < STRIP_REPEAT; i++) {
@@ -553,20 +619,18 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
 
   const openCase = async () => {
     if (spinning) return;
-    if (userBalance < caseData.price) { alert('Недостаточно средств'); return; }
+    if (userBalance < caseData.price) { showToast('Недостаточно средств'); return; }
 
     setSpinning(true);
     setPrize(null);
     setShowResultPopup(false);
     setWinnerIndex(null);
 
-    // ── 1. Сбрасываем ленту в начало без анимации ──
     if (trackRef.current) {
       trackRef.current.style.transition = 'none';
       trackRef.current.style.transform = 'translateX(0px)';
     }
 
-    // ── 2. Запрашиваем приз у сервера ──
     let winner;
     try {
       const rollRes = await fetch(`${API_URL}/api/case/roll`, {
@@ -585,46 +649,59 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
       return;
     }
 
+    // FIX 1: Логируем приз для отладки
+    console.log('[WINNER from server]', JSON.stringify(winner));
+
     setPrize(winner);
 
-    // ── 3. Ищем подходящий блок в ленте ──
-    //    Целевая зона: середина ленты (~40й повтор из 80)
     const targetRepeat = Math.floor(STRIP_REPEAT * 0.55);
     const targetBase = targetRepeat * prizeList.length;
 
-    let winnerStripIndex = targetBase;
-    for (let i = targetBase; i < targetBase + prizeList.length * 3; i++) {
+    let winnerStripIndex = -1;
+    for (let i = targetBase; i < targetBase + prizeList.length * 10; i++) {
       const item = strip[i];
-      if (item && item.type === winner.type && item.imageKey === winner.imageKey) {
-        // Для TON-призов дополнительно проверяем сумму
-        if (item.type === 'ton' && item.amount !== winner.amount) continue;
+      if (!item) continue;
+      if (item.type !== winner.type) continue;
+      if (item.type === 'ton' && Math.abs(item.amount - winner.amount) > 0.001) continue;
+      if (item.type === 'item' && item.id !== winner.id) continue;
+      winnerStripIndex = i;
+      break;
+    }
+
+    if (winnerStripIndex === -1) {
+      console.warn('[STRIP] Not found in zone, searching full strip. winner:', winner);
+      for (let i = targetBase; i < strip.length; i++) {
+        const item = strip[i];
+        if (!item) continue;
+        if (item.type !== winner.type) continue;
+        if (item.type === 'ton' && Math.abs(item.amount - winner.amount) > 0.001) continue;
+        if (item.type === 'item' && item.id !== winner.id) continue;
         winnerStripIndex = i;
         break;
       }
     }
-    setWinnerIndex(winnerStripIndex);
 
-    // ── 4. Вычисляем смещение так, чтобы центр блока-победителя
-    //    попал ровно в центр контейнера ──
-    //
-    //  Лента начинается с padding-left 15px.
-    //  Центр контейнера = containerWidth / 2
-    //  Центр победителя на ленте = 15 + winnerStripIndex * STEP + ITEM_W / 2
-    //  Нужный translateX = -(центр_победителя - центр_контейнера)
-    //
-    //  + небольшой случайный jitter ±30px чтобы не всегда в ровно центре (как в CS)
+    if (winnerStripIndex === -1) {
+      console.error('[STRIP] Winner not found at all! winner:', winner);
+      winnerStripIndex = targetBase;
+    }
+
+    console.log('[STRIP] winnerStripIndex:', winnerStripIndex, 'strip item:', JSON.stringify(strip[winnerStripIndex]));
+    setWinnerIndex(winnerStripIndex);
 
     const containerWidth = containerRef.current ? containerRef.current.offsetWidth : 372;
     const centerOfContainer = containerWidth / 2;
     const PADDING_LEFT = 15;
     const centerOfWinner = PADDING_LEFT + winnerStripIndex * STEP + ITEM_W / 2;
 
+<<<<<<< HEAD
     // Небольшой jitter только во время кручения, snap всегда точный
+=======
+>>>>>>> 698e7dc76fec26bbb1e415e2a4771dd798530f9c
     const jitter = (Math.random() - 0.5) * 60;
     const targetOffset = centerOfWinner - centerOfContainer + jitter;
     const exactOffset = centerOfWinner - centerOfContainer;
 
-    // ── 5. Запускаем анимацию ──
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         if (trackRef.current) {
@@ -632,14 +709,16 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
           trackRef.current.style.transform = `translateX(-${targetOffset}px)`;
         }
 
+<<<<<<< HEAD
         // ── 6. После анимации: доводим блок ТОЧНО в рамку ──
+=======
+>>>>>>> 698e7dc76fec26bbb1e415e2a4771dd798530f9c
         setTimeout(() => {
           if (trackRef.current) {
             trackRef.current.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
             trackRef.current.style.transform = `translateX(-${exactOffset}px)`;
           }
 
-          // ── 7. Зачисляем приз на сервере ──
           setTimeout(async () => {
             try {
               const resp = await fetch(`${API_URL}/api/case/open`, {
@@ -673,14 +752,11 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
       <button className="close-btn" onClick={() => setPage('cases')}>✕</button>
 
       <div className="wheel-section">
-        {/* Стрелка сверху */}
         <div className="indicator-container">
           <div className="indicator">▼</div>
         </div>
 
         <div className="case-wheel-container" ref={containerRef}>
-          {/* Края затемнения */}
-          {/* Центральная рамка как в CS2 */}
           <div className="wheel-center-frame"></div>
 
           <div className="case-wheel" ref={trackRef}>
@@ -694,43 +770,50 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
                   alt={item.name}
                   className="wheel-item-image"
                 />
-                <span className="wheel-item-amount">{item.name}</span>
+                {/* FIX 1: TON призы показывают сумму, NFT показывают "NFT" */}
+                <span className="wheel-item-amount">
+                  {item.type === 'ton' ? item.name : 'NFT'}
+                </span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Список возможных наград */}
+      {/* FIX 1: Используем displayPrizeList (без мизерных шансов) */}
       <div className="prizes-static">
         <h3>Возможные выигрыши</h3>
         <div className="prizes-grid">
-          {prizeList.map((item, index) => (
-            <div key={index} className="prize-card">
+          {displayPrizeList.map((item, index) => (
+            <div key={item.type === 'ton' ? `ton-${item.amount}` : item.id} className="prize-card">
               <img
                 src={rewardImages[item.imageKey] || tonLogo}
                 alt={item.name}
                 className="prize-card-image"
               />
+<<<<<<< HEAD
               <span className="prize-card-name">{item.name}</span>
               <span className="prize-card-chance">{item.displayChance !== undefined ? item.displayChance : item.chance}%</span>
+=======
+              <span className="prize-card-name">
+                {item.type === 'ton' ? item.name : 'NFT'}
+              </span>
+>>>>>>> 698e7dc76fec26bbb1e415e2a4771dd798530f9c
             </div>
           ))}
         </div>
       </div>
 
-      {/* Кнопка открыть */}
       <div className="case-panel">
         <button className="open-case-btn" onClick={openCase} disabled={spinning}>
           {spinning ? 'Открытие...' : `Открыть за ${caseData.price} TON`}
         </button>
       </div>
 
-      {/* Попап результата */}
       {showResultPopup && prize && (
         <div className="popup-overlay" onClick={() => setShowResultPopup(false)}>
           <div className="popup-content" onClick={e => e.stopPropagation()} style={{ paddingBottom: 30 }}>
-            <div className="drag-bar" style={{ background: '#0088cc' }}></div>
+            <div className="drag-bar"></div>
             <div style={{ textAlign: 'center', padding: '10px 0 20px' }}>
               <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, marginBottom: 16 }}>Вы выиграли</p>
               <img
@@ -875,22 +958,32 @@ function LeadersPage() {
   );
 }
 
-function ProfilePage({ telegramUser, userBalance, setShowDepositPopup, inventory, setInventory }) {
+function ProfilePage({ telegramUser, userBalance, setShowDepositPopup, inventory, setInventory, showToast }) {
   const [selectedItem, setSelectedItem] = React.useState(null);
   const [dragY, setDragY] = React.useState(0);
   const [dragStart, setDragStart] = React.useState(null);
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [invDragDir, setInvDragDir] = React.useState('');
   const [withdrawing, setWithdrawing] = React.useState(false);
   const openPopup = (item) => { setSelectedItem(item); setDragY(0); };
-  const closePopup = () => { setSelectedItem(null); setDragY(0); setDragStart(null); };
-  const onTouchStart = (e) => setDragStart(e.touches[0].clientY);
-  const onTouchMove = (e) => {
+  const closePopup = () => { setSelectedItem(null); setDragY(0); setDragStart(null); setIsDragging(false); setInvDragDir(''); };
+  const onDragStart = (e) => {
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+    setDragStart(y); setIsDragging(true); setInvDragDir('');
+  };
+  const onDragMove = (e) => {
     if (dragStart === null) return;
-    setDragY(Math.max(0, e.touches[0].clientY - dragStart));
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+    const raw = y - dragStart;
+    setInvDragDir(raw > 3 ? 'down' : raw < -3 ? 'up' : '');
+    setDragY(Math.max(0, raw));
   };
-  const onTouchEnd = () => {
+  const onDragEnd = (e) => {
     if (dragY > 110) closePopup();
-    else { setDragY(0); setDragStart(null); }
+    else { setDragY(0); setDragStart(null); setIsDragging(false); setInvDragDir(''); }
   };
+
+  // FIX 2: Сначала закрываем попап, потом показываем toast
   const handleWithdraw = async () => {
     if (!selectedItem || withdrawing) return;
     setWithdrawing(true);
@@ -899,10 +992,17 @@ function ProfilePage({ telegramUser, userBalance, setShowDepositPopup, inventory
       await sendAdminNotify(selectedItem, telegramUser);
       setInventory(prev => prev.filter(i => i.id !== selectedItem.id));
       closePopup();
-      alert('Заявка отправлена! Администратор свяжется с вами в Telegram.');
-    } catch (e) { console.error(e); alert('Ошибка при выводе'); }
+      // FIX 2: небольшая задержка чтобы попап успел закрыться до toast
+      setTimeout(() => {
+        showToast('Заявка отправлена ✓', 'success');
+      }, 150);
+    } catch (e) {
+      console.error(e);
+      showToast('Ошибка при выводе');
+    }
     setWithdrawing(false);
   };
+
   return (
     <div className="page profile-page">
       <div className="profile-balance">
@@ -928,8 +1028,9 @@ function ProfilePage({ telegramUser, userBalance, setShowDepositPopup, inventory
           <div className="inv-popup"
             style={{ transform: `translateY(${dragY}px)`, transition: dragY === 0 ? 'transform 0.3s ease' : 'none' }}
             onClick={e => e.stopPropagation()}
-            onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-            <div className="inv-handle" />
+            onMouseDown={onDragStart} onMouseMove={onDragMove} onMouseUp={onDragEnd} onMouseLeave={onDragEnd}
+            onTouchStart={onDragStart} onTouchMove={onDragMove} onTouchEnd={onDragEnd}>
+            <div className={`drag-bar ${isDragging && invDragDir === 'down' ? 'drag-down' : isDragging && invDragDir === 'up' ? 'drag-up' : ''}`} />
             <div className="inv-img-box">
               <img src={rewardImages[selectedItem.itemImage] || tonLogo} alt="NFT" className="inv-popup-img" />
             </div>
@@ -963,33 +1064,85 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
   const [myCashedOut, setMyCashedOut] = useState(false);
   const [lastWin, setLastWin]         = useState(null);
   const [rocketX, setRocketX]         = useState(5);
-  const [rocketY, setRocketY]         = useState(78);
+  const [rocketY, setRocketY]         = useState(72);
   const [crashed, setCrashed]         = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
-  const [skyP, setSkyP]               = useState(0);
+  // FIX 3: Вместо bgFrozen булева — используем smoothSkyP для плавного перехода
+  const [skyP, setSkyP]               = useState(0.085);
+  const [displaySkyP, setDisplaySkyP] = useState(0.085); // плавное значение для фона
   const [crashMult, setCrashMult]     = useState(null);
+  const [betError, setBetError]       = useState('');
+  const [showPlane, setShowPlane]     = useState(false);
+  const [nloPhase, setNloPhase]       = useState(0);
+  const [showMeteors, setShowMeteors] = useState(false);
+
+  // FIX 3: ref для плавного skyP
+  const displaySkyPRef = useRef(0.085);
+  const skyPRef = useRef(0.085);
+  const smoothingRef = useRef(null);
+
+  const betErrorTimer = useRef(null);
+  const showBetError = (msg) => {
+    setBetError(msg);
+    if (betErrorTimer.current) clearTimeout(betErrorTimer.current);
+    betErrorTimer.current = setTimeout(() => setBetError(''), 1500);
+  };
+  const [history, setHistory]         = useState([]);
 
   const wsRef          = useRef(null);
   const rocketXRef     = useRef(5);
-  const rocketYRef     = useRef(78);
-  const phaseRef       = useRef('betting');   // ВСЕГДА актуальный phase
-  const myBetRef       = useRef(null);        // ВСЕГДА актуальная ставка
+  const rocketYRef     = useRef(72);
+  const phaseRef       = useRef('betting');
+  const myBetRef       = useRef(null);
   const betSentRef     = useRef(false);
   const tickRef        = useRef(0);
 
+  // FIX 3: Плавное сглаживание displaySkyP к skyP
+  const startSmoothing = () => {
+    if (smoothingRef.current) return;
+    smoothingRef.current = setInterval(() => {
+      const current = displaySkyPRef.current;
+      const target = skyPRef.current;
+      if (Math.abs(current - target) < 0.001) {
+        displaySkyPRef.current = target;
+        setDisplaySkyP(target);
+        return;
+      }
+      // Плавно догоняем target со скоростью ~2% за 50ms
+      const next = current + (target - current) * 0.04;
+      displaySkyPRef.current = next;
+      setDisplaySkyP(next);
+    }, 50);
+  };
+
+  const stopSmoothing = () => {
+    if (smoothingRef.current) {
+      clearInterval(smoothingRef.current);
+      smoothingRef.current = null;
+    }
+  };
+
   const doReset = () => {
     rocketXRef.current = 5;
-    rocketYRef.current = 78;
+    rocketYRef.current = 72;
     tickRef.current    = 0;
     setRocketX(5);
-    setRocketY(78);
-    setSkyP(0);
+    setRocketY(72);
+    // FIX 3: При сбросе skyP плавно возвращаем к начальному значению
+    skyPRef.current = 0.085;
+    setSkyP(0.085);
     setCrashMult(null);
   };
 
   useEffect(() => {
+    // FIX 3: Запускаем сглаживание при монтировании
+    startSmoothing();
+    return () => stopSmoothing();
+  }, []);
+
+  useEffect(() => {
     let ws;
-    let destroyed = false; // защита от StrictMode двойного mount
+    let destroyed = false;
 
     const connect = () => {
       if (destroyed) return;
@@ -1010,9 +1163,9 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           setMultiplier(msg.multiplier || 1);
           setBets(msg.bets || []);
           setTimeLeft(msg.timeLeft || 10);
+          if (msg.history) setHistory(msg.history);
 
           if (msg.phase === 'betting') {
-            // Только если это реальная смена фазы — сбрасываем
             if (prevPhase !== 'betting') {
               setCrashed(false);
               setShowRedFlash(false);
@@ -1021,15 +1174,17 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
               setMyBet(null);
               setMyCashedOut(false);
               setLastWin(null);
+              setNloPhase(0);
+              nloTriggered.current = false;
+              setShowPlane(false);
+              setShowMeteors(false);
               doReset();
             }
           } else {
-            // Реконнект во время flying/crashed — восстанавливаем ставку
             const myTgId = telegramUser?.id;
             if (myTgId) {
               const myServerBet = (msg.bets || []).find(b => b.telegramId === myTgId);
               if (myServerBet && !myBetRef.current) {
-                console.log('[RECONNECT] Restoring bet from server:', myServerBet);
                 myBetRef.current   = { amount: myServerBet.amount };
                 betSentRef.current = true;
                 setMyBet({ amount: myServerBet.amount });
@@ -1057,7 +1212,21 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           const sp = Math.max(0, Math.min(1, 1 - (rocketYRef.current - 7) / 71));
           setRocketX(rocketXRef.current);
           setRocketY(rocketYRef.current);
+          // FIX 3: Обновляем target skyP — displaySkyP плавно догонит
+          skyPRef.current = sp;
           setSkyP(sp);
+          if (sp > 0.55 && !showMeteors) setShowMeteors(true);
+          if (msg.multiplier >= 1.45 && msg.multiplier <= 1.55 && t < 50) {
+            setShowPlane(true);
+            setTimeout(() => setShowPlane(false), 1800);
+          }
+          if (msg.multiplier >= 25 && !nloTriggered.current) {
+            nloTriggered.current = true;
+            setNloPhase(1);
+            setTimeout(() => setNloPhase(2), 400);
+            setTimeout(() => setNloPhase(3), 800);
+            setTimeout(() => setNloPhase(4), 1200);
+          }
         }
 
         if (msg.type === 'crash') {
@@ -1068,6 +1237,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           phaseRef.current = 'crashed';
           setPhase('crashed');
           setBets(msg.bets || []);
+          if (msg.history) setHistory(msg.history);
           setTimeout(() => setShowRedFlash(false), 2500);
           setTimeout(() => {
             phaseRef.current   = 'betting';
@@ -1083,7 +1253,6 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
 
         if (msg.type === 'betOk') {
           setUserBalance(msg.balance);
-          // гарантируем что myBet выставлен
           if (myBetRef.current) setMyBet({ ...myBetRef.current });
         }
 
@@ -1094,21 +1263,17 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
         }
 
         if (msg.type === 'error') {
-          // Не сбрасываем ставку если она уже принята сервером
-          // (дубликат-ошибки от нескольких WS-соединений)
           const alreadyPlaced = msg.text === 'Ставка уже сделана';
           if (!alreadyPlaced) {
             myBetRef.current   = null;
             betSentRef.current = false;
             setMyBet(null);
           }
-          console.log('[ERROR]', msg.text, 'alreadyPlaced=', alreadyPlaced);
-          if (!alreadyPlaced) alert(msg.text);
+          if (!alreadyPlaced) showBetError(msg.text);
         }
       };
 
       ws.onclose = () => {
-        console.log('[WS] closed');
         if (!destroyed) setTimeout(connect, 2000);
       };
       ws.onerror = () => ws.close();
@@ -1121,24 +1286,23 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
     };
   }, []);
 
+  const nloTriggered = useRef(false);
+
   const placeBet = () => {
     const amount = parseFloat(betAmount);
-    console.log('[BET] placeBet called', { amount, phase: phaseRef.current, myBet: myBetRef.current, betSent: betSentRef.current, wsState: wsRef.current?.readyState });
-    if (isNaN(amount) || amount <= 0)  { alert('Введите корректную сумму'); return; }
-    if (amount > userBalance)           { alert('Недостаточно средств'); return; }
-    if (myBetRef.current)               { console.log('[BET] already placed'); alert('Ставка уже сделана'); return; }
-    if (betSentRef.current)             { console.log('[BET] already sent'); return; }
-    if (phaseRef.current !== 'betting') { console.log('[BET] wrong phase:', phaseRef.current); alert('Ставки только до старта'); return; }
+    if (isNaN(amount) || amount <= 0)  { showBetError('Введите корректную сумму'); return; }
+    if (amount > userBalance)           { showBetError('Недостаточно средств'); return; }
+    if (myBetRef.current)               { return; }
+    if (betSentRef.current)             { return; }
+    if (phaseRef.current !== 'betting') { showBetError('Ставки только до старта'); return; }
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      console.log('[BET] ws not open, state:', wsRef.current?.readyState);
-      alert('Нет соединения'); return;
+      showBetError('Нет соединения'); return;
     }
-
+    setBetError('');
     betSentRef.current = true;
     const bet = { amount };
     myBetRef.current = bet;
     setMyBet(bet);
-    console.log('[BET] sending bet', bet);
 
     wsRef.current.send(JSON.stringify({
       type:       'bet',
@@ -1158,30 +1322,31 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
     const r = (a, b) => Math.round(h(a) + (h(b) - h(a)) * t).toString(16).padStart(2, '0');
     return '#' + r(c1.slice(1,3),c2.slice(1,3)) + r(c1.slice(3,5),c2.slice(3,5)) + r(c1.slice(5,7),c2.slice(5,7));
   };
+
+  // FIX 3: getBg теперь использует displaySkyP (плавное значение без скачков)
   const getBg = () => {
     if (crashed) return 'linear-gradient(to bottom,#1a0000,#050005)';
+    const p = displaySkyP;
     const stops = [
-      { p: 0.00, top: '#5baad6', bot: '#87ceeb' },
-      { p: 0.20, top: '#2a5fa8', bot: '#4a90d4' },
-      { p: 0.45, top: '#0d2255', bot: '#1a3a8e' },
-      { p: 0.65, top: '#050f2e', bot: '#080e3a' },
-      { p: 1.00, top: '#000000', bot: '#020510' },
+      { p: 0.085, top: '#6ab4d8', bot: '#8ecfed' },
+      { p: 0.20,  top: '#3a7ab8', bot: '#5a9fd4' },
+      { p: 0.40,  top: '#0d2255', bot: '#1a3a8e' },
+      { p: 0.65,  top: '#050f2e', bot: '#080e3a' },
+      { p: 1.00,  top: '#000000', bot: '#020510' },
     ];
     let s0 = stops[0], s1 = stops[stops.length-1];
     for (let i = 0; i < stops.length-1; i++) {
-      if (skyP >= stops[i].p && skyP <= stops[i+1].p) { s0 = stops[i]; s1 = stops[i+1]; break; }
+      if (p >= stops[i].p && p <= stops[i+1].p) { s0 = stops[i]; s1 = stops[i+1]; break; }
     }
-    const t = s1.p === s0.p ? 0 : (skyP - s0.p) / (s1.p - s0.p);
+    const t = s1.p === s0.p ? 0 : (p - s0.p) / (s1.p - s0.p);
     return `linear-gradient(to bottom,${lerpColor(s0.top,s1.top,t)},${lerpColor(s0.bot,s1.bot,t)})`;
   };
 
   const multColor = crashed ? '#ff4444' : myCashedOut ? '#00e676' : '#ffffff';
 
-  // Кнопка определяется через REFS а не state — нет лага
   const renderPanel = () => {
     const p  = phaseRef.current;
     const mb = myBetRef.current;
-    console.log('[PANEL] render', { p, mb, myCashedOut });
 
     if (mb && myCashedOut) {
       return <button className="rw-action-btn rw-btn-cashed" disabled>Выведено</button>;
@@ -1199,7 +1364,6 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
     if (mb && p === 'betting') {
       return <button className="rw-action-btn rw-btn-waiting" disabled>Ставка {mb.amount} TON принята</button>;
     }
-    // Нет ставки
     return (
       <>
         <div className="rw-input-row">
@@ -1208,7 +1372,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
             type="number"
             placeholder="0.00"
             value={betAmount}
-            onChange={e => setBetAmount(e.target.value)}
+            onChange={e => { setBetAmount(e.target.value); setBetError(''); }}
             disabled={p !== 'betting'}
           />
           <button className="rw-max-btn" onClick={() => setBetAmount(String(userBalance))} disabled={p !== 'betting'}>
@@ -1224,7 +1388,8 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
 
   return (
     <div className="rocket-game-page">
-      <div className="rocket-window" style={{ background: getBg(), transition: 'background 1.5s ease', position: 'relative' }}>
+      {/* FIX 3: убрали inline transition, фон теперь обновляется через displaySkyP плавно */}
+      <div className="rocket-window" style={{ background: getBg() }}>
         {showRedFlash && <div className="crash-flash" />}
         <div className="rw-static-stars" style={{ opacity: Math.min(skyP * 3, 1) }}>
           {[...Array(28)].map((_, i) => (
@@ -1239,16 +1404,34 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
         </div>
 
         {skyP > 0.25 && (
+<<<<<<< HEAD
           <div className="rw-lottie-layer rw-stars-layer" style={{ opacity: Math.min((skyP-0.25)*3, 0.9) }}>
             <Lottie animationData={starsAnimation} loop autoplay style={{ width:'100%', height:'100%' }} />
           </div>
         )}
         {skyP > 0.35 && (
           <div className="rw-lottie-layer rw-planet-layer" style={{ opacity: Math.min((skyP-0.35)*5, 1) }}>
+=======
+          <div className="rw-lottie-layer rw-stars-layer" style={{
+            opacity: nloPhase > 0
+              ? Math.max(1 - nloPhase * 0.35, 0)
+              : Math.min((skyP-0.25)*3, 0.9)
+          }}>
+            <Lottie animationData={starsAnimation} loop autoplay style={{ width:'100%', height:'100%' }} />
+          </div>
+        )}
+        {skyP > 0.58 && (
+          <div className="rw-lottie-layer rw-planet-layer" style={{
+            opacity: nloPhase > 0
+              ? Math.max(1 - nloPhase * 0.5, 0)
+              : Math.min((skyP-0.58)*8, 1)
+          }}>
+>>>>>>> 698e7dc76fec26bbb1e415e2a4771dd798530f9c
             <Lottie animationData={planetAnimation} loop autoplay style={{ width:90, height:90 }} />
           </div>
         )}
         {skyP > 0.5 && (
+<<<<<<< HEAD
           <div className="rw-lottie-layer rw-planet2-layer" style={{ opacity: Math.min((skyP-0.5)*6, 1) }}>
             <Lottie animationData={planet2Animation} loop autoplay style={{ width:75, height:75 }} />
           </div>
@@ -1258,6 +1441,50 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
             <Lottie animationData={satelliteAnimation} loop autoplay style={{ width:55, height:55 }} />
           </div>
         )}
+=======
+          <div className="rw-lottie-layer rw-planet2-layer" style={{
+            opacity: nloPhase > 0
+              ? Math.max(1 - nloPhase * 0.5, 0)
+              : Math.min((skyP-0.5)*6, 1)
+          }}>
+            <Lottie animationData={planet2Animation} loop autoplay style={{ width:75, height:75 }} />
+          </div>
+        )}
+        {skyP > 0.32 && skyP < 0.55 && nloPhase === 0 && (
+          <div className="rw-lottie-layer rw-satellite-layer" style={{
+            opacity: skyP < 0.42
+              ? Math.min((skyP-0.32)*10, 1)
+              : Math.max((0.55-skyP)*7, 0)
+          }}>
+            <Lottie animationData={satelliteAnimation} loop autoplay style={{ width:55, height:55 }} />
+          </div>
+        )}
+        {showMeteors && nloPhase === 0 && (
+          <div className="rw-lottie-layer rw-meteor-layer" style={{ opacity: Math.min((skyP-0.55)*5, 0.85) }}>
+            <Lottie animationData={meteorAnimation} loop autoplay style={{ width:'100%', height:'100%' }} />
+          </div>
+        )}
+        {nloPhase >= 1 && (
+          <div className="rw-lottie-layer rw-nlo-1" style={{ opacity: Math.min((nloPhase - 0) * 0.8, 1), transition: 'opacity 0.4s ease' }}>
+            <Lottie animationData={nloAnimation} loop autoplay style={{ width:65, height:65 }} />
+          </div>
+        )}
+        {nloPhase >= 2 && (
+          <div className="rw-lottie-layer rw-nlo-2" style={{ opacity: Math.min((nloPhase - 1) * 0.8, 1), transition: 'opacity 0.4s ease' }}>
+            <Lottie animationData={nloAnimation} loop autoplay style={{ width:60, height:60 }} />
+          </div>
+        )}
+        {nloPhase >= 3 && (
+          <div className="rw-lottie-layer rw-nlo-3" style={{ opacity: Math.min((nloPhase - 2) * 0.8, 1), transition: 'opacity 0.4s ease' }}>
+            <Lottie animationData={nloAnimation} loop autoplay style={{ width:58, height:58 }} />
+          </div>
+        )}
+        {nloPhase >= 4 && (
+          <div className="rw-lottie-layer rw-nlo-4" style={{ opacity: 1, transition: 'opacity 0.4s ease' }}>
+            <Lottie animationData={nloAnimation} loop autoplay style={{ width:55, height:55 }} />
+          </div>
+        )}
+>>>>>>> 698e7dc76fec26bbb1e415e2a4771dd798530f9c
         {skyP < 0.35 && !crashed && CLOUD_POSITIONS.map((pos, i) => (
           <div key={i} className="rw-cloud-item" style={{
             top: pos.top, left: pos.left,
@@ -1272,10 +1499,27 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
         <div className="rw-multiplier" style={{ color: multColor }}>{multiplier.toFixed(2)}x</div>
         {crashed && <div className="rw-crash-label">УЛЕТЕЛА</div>}
         {phase === 'betting' && <div className="rw-countdown">Ставки {timeLeft}с</div>}
+        {history.length > 0 && (
+          <div className="rw-history-bar">
+            {history.map((val, i) => {
+              const cls = val < 1.5 ? 'c-blue' : val < 2 ? 'c-purple' : val < 5 ? 'c-pink' : val < 10 ? 'c-yellow' : val < 15 ? 'c-cyan' : val < 30 ? 'c-red' : val < 50 ? 'c-green' : 'c-black';
+              return (
+              <div key={i} className={`rw-history-chip ${cls}`}>
+                {val >= 100 ? Math.floor(val) : val}x
+              </div>
+              );
+            })}
+          </div>
+        )}
 
         {!crashed && (
           <div className="rw-rocket" style={{ left:`${rocketX}%`, top:`${rocketY}%` }}>
             <Lottie animationData={rocketAnimation} loop autoplay style={{ width:64, height:64 }} />
+          </div>
+        )}
+        {showPlane && (
+          <div className="rw-plane">
+            <Lottie animationData={planeAnimation} loop={false} autoplay style={{ width:70, height:70 }} />
           </div>
         )}
         {crashed && <div className="rw-crash-burst" style={{ left:`${rocketXRef.current}%`, top:`${rocketYRef.current}%` }} />}
@@ -1286,18 +1530,25 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
         )}
       </div>
 
-      {/* СПИСОК СТАВОК — скроллится */}
       <div className="rw-bets-list">
         {bets.length === 0
           ? <div className="rw-bets-empty">Ставок пока нет</div>
           : bets.map((b, i) => (
             <div key={i} className={`rw-bet-row${b.cashedOut ? ' cashed' : ''}`}>
               <div className="rw-bet-avatar" style={{padding:0,overflow:'hidden'}}>
+<<<<<<< HEAD
         {b.photoUrl
           ? <img src={b.photoUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}} />
           : (b.username||'?')[0].toUpperCase()
         }
       </div>
+=======
+                {b.photoUrl
+                  ? <img src={b.photoUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}} />
+                  : (b.username||'?')[0].toUpperCase()
+                }
+              </div>
+>>>>>>> 698e7dc76fec26bbb1e415e2a4771dd798530f9c
               <div className="rw-bet-info">
                 <span className="rw-bet-name">{b.username||'Аноним'}</span>
                 <span className="rw-bet-ton">{b.amount} TON</span>
@@ -1314,13 +1565,15 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
         }
       </div>
 
-      {/* ПАНЕЛЬ — fixed к низу, всегда видна */}
+      {betError && <div className="rw-bet-toast">{betError}</div>}
+
       <div className="rw-panel">
         {renderPanel()}
       </div>
     </div>
   );
 }
+
 function BottomNav({ page, setPage, telegramUser }) {
   return (
     <div className="bottom-nav">
