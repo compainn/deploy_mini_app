@@ -34,7 +34,7 @@ import case2reward4 from './assets/images/case_2_reward_4.jpg';
 import case3reward1 from './assets/images/case_3_reward_1.jpg';
 import case3reward2 from './assets/images/case_3_reward_2.jpg';
 import case3reward3 from './assets/images/case_3_reward_3.jpg';
-// import case3reward4 from './assets/images/case_3_reward_4.jpg'; // временно отключён
+import case3reward4 from './assets/images/case_3_reward_4.jpg';
 import case4reward1 from './assets/images/case_4_reward_1.jpg';
 import case4reward2 from './assets/images/case_4_reward_2.jpg';
 import case4reward3 from './assets/images/case_4_reward_3.jpg';
@@ -63,7 +63,7 @@ const rewardImages = {
   'case_3_reward_1': case3reward1,
   'case_3_reward_2': case3reward2,
   'case_3_reward_3': case3reward3,
-  'case_3_reward_4': null, // файл отсутствует, используется fallback
+  'case_3_reward_4': case3reward4,
   'case_4_reward_1': case4reward1,
   'case_4_reward_2': case4reward2,
   'case_4_reward_3': case4reward3,
@@ -153,6 +153,7 @@ function getPrizeListForCase(caseId) {
     { type: 'item', id: 'case_3_reward_1', name: 'NFT', imageKey: 'case_3_reward_1', chance: 0.01 },
     { type: 'item', id: 'case_3_reward_2', name: 'NFT', imageKey: 'case_3_reward_2', chance: 0.01 },
     { type: 'item', id: 'case_3_reward_3', name: 'NFT', imageKey: 'case_3_reward_3', chance: 0.01 },
+    { type: 'item', id: 'case_3_reward_4', name: 'NFT', imageKey: 'case_3_reward_4', chance: 0.01 },
   ];
 
   // id1 = кейс 10 TON (добавляем 15 TON)
