@@ -574,32 +574,42 @@ function CasesPage({ setPage, setSelectedCase }) {
 // ============================================================
 function CaseInfoPopup({ onClose }) {
   const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(null);
+  const [dragDir, setDragDir] = useState('');
 
-  const handleTouchStart = (e) => setDragStart(e.touches[0].clientY);
-  const handleTouchMove = (e) => {
-    if (dragStart === null) return;
-    const dy = e.touches[0].clientY - dragStart;
+  const onDragStart = (e) => {
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+    setDragStart(y);
+    setIsDragging(true);
+    setDragDir('');
+  };
+  const onDragMove = (e) => {
+    if (!isDragging || dragStart === null) return;
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+    const dy = y - dragStart;
+    if (Math.abs(dy) > 3) setDragDir(dy > 0 ? 'down' : 'up');
     if (dy > 0) setDragY(dy);
   };
-  const handleTouchEnd = () => {
-    if (dragY > 80) onClose();
+  const onDragEnd = () => {
+    if (dragY > 110) onClose();
     setDragY(0);
+    setIsDragging(false);
     setDragStart(null);
+    setDragDir('');
   };
 
   return (
     <div className="inv-overlay" onClick={onClose}>
       <div
         className="inv-popup"
-        style={{ transform: `translateY(${dragY}px)`, transition: dragY ? 'none' : 'transform 0.3s ease' }}
+        style={{ transform: `translateY(${dragY}px)`, transition: dragY === 0 ? 'transform 0.3s ease' : 'none' }}
         onClick={e => e.stopPropagation()}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        onMouseDown={onDragStart} onMouseMove={onDragMove} onMouseUp={onDragEnd} onMouseLeave={onDragEnd}
+        onTouchStart={onDragStart} onTouchMove={onDragMove} onTouchEnd={onDragEnd}
       >
-        <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.2)', marginBottom: 12 }} />
-        <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 15, textAlign: 'center', margin: 0, lineHeight: 1.6 }}>
+        <div className={`drag-bar ${isDragging && dragDir === 'down' ? 'drag-down' : isDragging && dragDir === 'up' ? 'drag-up' : ''}`} />
+        <p style={{ color: 'white', fontSize: 16, fontWeight: 700, textAlign: 'center', margin: '8px 0 0', lineHeight: 1.5 }}>
           Модель и фон подарков могут не соответствовать
         </p>
       </div>
