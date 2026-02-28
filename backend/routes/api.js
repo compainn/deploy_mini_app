@@ -3,6 +3,9 @@ const router = express.Router();
 const { User, Transaction, InventoryItem } = require('../models/User');
 const { Sequelize } = require('sequelize');
 
+// Хранит результат roll до вызова open (ключ: telegramId)
+const pendingRolls = new Map();
+
 const convertToFriendlyAddress = (rawAddress) => {
   if (!rawAddress) return null;
   if (rawAddress.startsWith('UQ') || rawAddress.startsWith('EQ')) return rawAddress;
@@ -81,7 +84,9 @@ router.post('/case/roll', async (req, res) => {
     const prizeList = getPrizeListForCase(caseId);
     const prize = rollPrize(prizeList);
 
-    // Возвращаем приз — он будет использован для анимации и для /case/open
+    // Сохраняем приз на сервере — фронт не может подменить
+    pendingRolls.set(String(telegramId), { prize, caseId, ts: Date.now() });
+
     res.json({ prize });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -189,10 +194,18 @@ router.post('/user/win', async (req, res) => {
 // ============================================================
 router.post('/case/open', async (req, res) => {
   try {
-    const { telegramId, caseId, casePrice, prize } = req.body;
+    const { telegramId, caseId, casePrice } = req.body;
     const user = await User.findOne({ where: { telegramId } });
     if (!user) return res.status(404).json({ error: 'User not found' });
     if (user.balance < casePrice) return res.status(400).json({ error: 'Недостаточно средств' });
+
+    // Берём приз с сервера — игнорируем то что прислал фронт
+    const pending = pendingRolls.get(String(telegramId));
+    if (!pending || pending.caseId !== caseId) {
+      return res.status(400).json({ error: 'Roll not found — call /case/roll first' });
+    }
+    const prize = pending.prize;
+    pendingRolls.delete(String(telegramId)); // чистим после использования
 
     user.balance -= casePrice;
     user.totalBets += casePrice;
