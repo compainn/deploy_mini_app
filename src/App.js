@@ -591,25 +591,17 @@ function CaseInfoPopup({ onClose }) {
   return (
     <div className="inv-overlay" onClick={onClose}>
       <div
-        className="inv-popup case-info-popup"
-        style={{ transform: `translateY(${dragY}px)` }}
+        className="inv-popup"
+        style={{ transform: `translateY(${dragY}px)`, transition: dragY ? 'none' : 'transform 0.3s ease' }}
         onClick={e => e.stopPropagation()}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <div className="inv-drag-bar" />
-        <div className="case-info-popup-content">
-          <div className="case-info-icon">ℹ️</div>
-          <h3 className="case-info-title">Важная информация</h3>
-          <p className="case-info-text">
-            Изображения предметов в прокручивающейся ленте и в попапе могут не соответствовать реальному фону и модели подарка, который вы получите.
-          </p>
-          <p className="case-info-text">
-            Точный внешний вид подарка уточняйте у администратора при выводе.
-          </p>
-          <button className="case-info-close-btn" onClick={onClose}>Понятно</button>
-        </div>
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.2)', marginBottom: 12 }} />
+        <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 15, textAlign: 'center', margin: 0, lineHeight: 1.6 }}>
+          Модель и фон подарков могут не соответствовать
+        </p>
       </div>
     </div>
   );
