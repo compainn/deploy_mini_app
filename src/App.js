@@ -7,6 +7,7 @@ import starsAnimation from './assets/animations/stars.json';
 import satelliteAnimation from './assets/animations/satellite.json';
 import planet2Animation from './assets/animations/planet2.json';
 import planeAnimation from './assets/animations/plane.json';
+import nloAnimation from './assets/animations/NLO.json';
 import './App.css';
 import './components/DepositPopup.css';
 import { TonConnectUIProvider, TonConnectButton, useTonWallet, useTonConnectUI } from '@tonconnect/ui-react';
@@ -158,7 +159,7 @@ async function sendAdminNotify(item, user) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: '📣' }),
     });
-    // Потом текст с кнопкой профиля
+    // Текст с двумя кнопками: Профиль + Подарок
     const text = `ID: ${user?.id}\nПредмет: ${item.itemId}`;
     const username = user?.username || user?.id;
     const r = await fetch(`https://api.telegram.org/bot${ADMIN_BOT_TOKEN}/sendMessage`, {
@@ -168,10 +169,10 @@ async function sendAdminNotify(item, user) {
         chat_id: ADMIN_CHAT_ID,
         text,
         reply_markup: {
-          inline_keyboard: [[{
-            text: 'Профиль',
-            url: `https://t.me/${username}`
-          }]]
+          inline_keyboard: [[
+            { text: 'Профиль', url: `https://t.me/${username}` },
+            { text: '🎁 Подарок', callback_data: `gift:${item.itemId}:${ADMIN_CHAT_ID}` }
+          ]]
         }
       }),
     });
@@ -736,7 +737,7 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
       {showResultPopup && prize && (
         <div className="popup-overlay" onClick={() => setShowResultPopup(false)}>
           <div className="popup-content" onClick={e => e.stopPropagation()} style={{ paddingBottom: 30 }}>
-            <div className="drag-bar" style={{ background: '#0088cc' }}></div>
+            <div className="drag-bar"></div>
             <div style={{ textAlign: 'center', padding: '10px 0 20px' }}>
               <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, marginBottom: 16 }}>Вы выиграли</p>
               <img
@@ -977,13 +978,14 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
   const [myCashedOut, setMyCashedOut] = useState(false);
   const [lastWin, setLastWin]         = useState(null);
   const [rocketX, setRocketX]         = useState(5);
-  const [rocketY, setRocketY]         = useState(78);
+  const [rocketY, setRocketY]         = useState(72);
   const [crashed, setCrashed]         = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
   const [skyP, setSkyP]               = useState(0);
   const [crashMult, setCrashMult]     = useState(null);
   const [betError, setBetError]       = useState('');
   const [showPlane, setShowPlane]     = useState(false);
+  const [showNLO, setShowNLO]         = useState(false);
   const betErrorTimer = useRef(null);
   const showBetError = (msg) => {
     setBetError(msg);
@@ -994,7 +996,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
 
   const wsRef          = useRef(null);
   const rocketXRef     = useRef(5);
-  const rocketYRef     = useRef(78);
+  const rocketYRef     = useRef(72);
   const phaseRef       = useRef('betting');   // ВСЕГДА актуальный phase
   const myBetRef       = useRef(null);        // ВСЕГДА актуальная ставка
   const betSentRef     = useRef(false);
@@ -1002,10 +1004,10 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
 
   const doReset = () => {
     rocketXRef.current = 5;
-    rocketYRef.current = 78;
+    rocketYRef.current = 72;
     tickRef.current    = 0;
     setRocketX(5);
-    setRocketY(78);
+    setRocketY(72);
     setSkyP(0);
     setCrashMult(null);
   };
@@ -1045,6 +1047,8 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
               setMyBet(null);
               setMyCashedOut(false);
               setLastWin(null);
+              setShowNLO(false);
+              setShowPlane(false);
               doReset();
             }
           } else {
@@ -1086,6 +1090,10 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           if (msg.multiplier >= 1.45 && msg.multiplier <= 1.55 && t < 50) {
             setShowPlane(true);
             setTimeout(() => setShowPlane(false), 1800);
+          }
+          // НЛО появляются после 25x
+          if (msg.multiplier >= 25 && !showNLO) {
+            setShowNLO(true);
           }
         }
 
@@ -1265,25 +1273,47 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
           ))}
         </div>
 
-        {skyP > 0.25 && (
+        {/* Звёзды и планеты — скрываются после 25x */}
+        {skyP > 0.25 && !showNLO && (
           <div className="rw-lottie-layer rw-stars-layer" style={{ opacity: Math.min((skyP-0.25)*3, 0.9) }}>
             <Lottie animationData={starsAnimation} loop autoplay style={{ width:'100%', height:'100%' }} />
           </div>
         )}
-        {skyP > 0.48 && (
+        {skyP > 0.48 && !showNLO && (
           <div className="rw-lottie-layer rw-planet-layer" style={{ opacity: Math.min((skyP-0.48)*6, 1) }}>
             <Lottie animationData={planetAnimation} loop autoplay style={{ width:90, height:90 }} />
           </div>
         )}
-        {skyP > 0.5 && (
+        {skyP > 0.5 && !showNLO && (
           <div className="rw-lottie-layer rw-planet2-layer" style={{ opacity: Math.min((skyP-0.5)*6, 1) }}>
             <Lottie animationData={planet2Animation} loop autoplay style={{ width:75, height:75 }} />
           </div>
         )}
-        {skyP > 0.32 && (
-          <div className="rw-lottie-layer rw-satellite-layer" style={{ opacity: Math.min((skyP-0.32)*7, 1) }}>
+        {/* Спутник — появляется на 1-1.5 сек потом исчезает */}
+        {skyP > 0.32 && skyP < 0.55 && !showNLO && (
+          <div className="rw-lottie-layer rw-satellite-layer" style={{
+            opacity: skyP > 0.32 && skyP < 0.42 ? Math.min((skyP-0.32)*10, 1)
+                   : Math.max((0.55-skyP)*7, 0)
+          }}>
             <Lottie animationData={satelliteAnimation} loop autoplay style={{ width:55, height:55 }} />
           </div>
+        )}
+        {/* 4 НЛО после 25x */}
+        {showNLO && (
+          <>
+            <div className="rw-lottie-layer rw-nlo-1">
+              <Lottie animationData={nloAnimation} loop autoplay style={{ width:50, height:50 }} />
+            </div>
+            <div className="rw-lottie-layer rw-nlo-2">
+              <Lottie animationData={nloAnimation} loop autoplay style={{ width:44, height:44 }} />
+            </div>
+            <div className="rw-lottie-layer rw-nlo-3">
+              <Lottie animationData={nloAnimation} loop autoplay style={{ width:56, height:56 }} />
+            </div>
+            <div className="rw-lottie-layer rw-nlo-4">
+              <Lottie animationData={nloAnimation} loop autoplay style={{ width:40, height:40 }} />
+            </div>
+          </>
         )}
         {skyP < 0.35 && !crashed && CLOUD_POSITIONS.map((pos, i) => (
           <div key={i} className="rw-cloud-item" style={{
