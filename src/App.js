@@ -118,83 +118,20 @@ function getPrizeListForCase(caseId) {
         { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 0.05, displayChance: 8 },
       ];
 
-  // Призы по кейсам (chance = реальный шанс, сумма не обязана = 100%)
-  // Цены кейсов: id5=1.5 id4=2.5 id6=5 id3=7 id1=10 id2=20 TON
-  // Правило: ~35% шанс выпасть БОЛЬШЕ цены кейса
-
-  let tonPrizes;
-
-  if (caseId === 5) {
-    // Кейс 1.5 TON — выпасть > 1.5 должно с ~35% (2+ TON)
-    tonPrizes = [
-      { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 15 },
-      { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 25 },
-      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 22 },
-      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 22 }, // >1.5 начинается
-      { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 10 },
-      { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 3,  displayChance: 5 },
-    ];
-  } else if (caseId === 4) {
-    // Кейс 2.5 TON — выпасть > 2.5 должно с ~35% (3+ TON)
-    tonPrizes = [
-      { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 10 },
-      { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 20 },
-      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 20 },
-      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 15 },
-      { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 22 }, // >2.5 начинается
-      { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 10 },
-      { type: 'ton', amount: 7.0,  name: '7 TON',    imageKey: 'ton', chance: 3,  displayChance: 5 },
-    ];
-  } else if (caseId === 6) {
-    // Кейс 5 TON — выпасть > 5 должно с ~35% (6+ TON)
-    tonPrizes = [
-      { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 10 },
-      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 15 },
-      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 20 },
-      { type: 'ton', amount: 4.0,  name: '4 TON',    imageKey: 'ton', chance: 20 },
-      { type: 'ton', amount: 6.0,  name: '6 TON',    imageKey: 'ton', chance: 20 }, // >5 начинается
-      { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 12 },
-      { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 3,  displayChance: 5 },
-    ];
-  } else if (caseId === 3) {
-    // Кейс 7 TON — выпасть > 7 должно с ~35% (8+ TON)
-    tonPrizes = [
-      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 10 },
-      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 15 },
-      { type: 'ton', amount: 4.0,  name: '4 TON',    imageKey: 'ton', chance: 20 },
-      { type: 'ton', amount: 6.0,  name: '6 TON',    imageKey: 'ton', chance: 20 },
-      { type: 'ton', amount: 8.0,  name: '8 TON',    imageKey: 'ton', chance: 20 }, // >7 начинается
-      { type: 'ton', amount: 12.0, name: '12 TON',   imageKey: 'ton', chance: 12 },
-      { type: 'ton', amount: 20.0, name: '20 TON',   imageKey: 'ton', chance: 3,  displayChance: 5 },
-    ];
-  } else if (caseId === 1) {
-    // Кейс 10 TON — выпасть > 10 должно с ~35% (12+ TON)
-    tonPrizes = [
-      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 8  },
-      { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 12 },
-      { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 18 },
-      { type: 'ton', amount: 8.0,  name: '8 TON',    imageKey: 'ton', chance: 27 },
-      { type: 'ton', amount: 12.0, name: '12 TON',   imageKey: 'ton', chance: 20 }, // >10 начинается
-      { type: 'ton', amount: 18.0, name: '18 TON',   imageKey: 'ton', chance: 12 },
-      { type: 'ton', amount: 30.0, name: '30 TON',   imageKey: 'ton', chance: 3,  displayChance: 5 },
-    ];
-  } else if (caseId === 2) {
-    // Кейс 20 TON — выпасть > 20 должно с ~35% (25 TON = 35%)
-    tonPrizes = [
-      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 5  },
-      { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 10 },
-      { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 40 },
-      { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 10 },
-      { type: 'ton', amount: 25.0, name: '25 TON',   imageKey: 'ton', chance: 35 }, // >20 — главный приз
-    ];
-  } else {
-    tonPrizes = [
-      { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 20 },
-      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 35 },
-      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 35 },
-      { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 10 },
-    ];
-  }
+  // ВАЖНО: суммы одинаковые для всех кейсов — только шансы разные
+  // Это гарантирует что лента и сервер всегда синхронизированы
+  const tonPrizes = [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: caseId === 5 ? 3  : [1,2].includes(caseId) ? 3  : 5  },
+    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: caseId === 5 ? 7  : [1,2].includes(caseId) ? 5  : 8  },
+    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: caseId === 5 ? 10 : [1,2].includes(caseId) ? 7  : 12 },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: caseId === 5 ? 15 : [1,2].includes(caseId) ? 8  : 15 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: caseId === 5 ? 25 : [1,2].includes(caseId) ? 10 : 20 },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: caseId === 5 ? 22 : [1,2].includes(caseId) ? 15 : 22 },
+    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: caseId === 5 ? 15 : [1,2].includes(caseId) ? 20 : 15 },
+    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: caseId === 5 ? 3  : [1,2].includes(caseId) ? 15 : 3  },
+    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: caseId === 5 ? 0  : [1,2].includes(caseId) ? 12 : 0  },
+    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: caseId === 5 ? 0  : [1,2].includes(caseId) ? 5  : 0  },
+  ].filter(p => p.chance > 0);
 
   return [...itemPrizes, ...tonPrizes];
 }
@@ -1043,7 +980,7 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
   const [rocketY, setRocketY]         = useState(72);
   const [crashed, setCrashed]         = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
-  const [skyP, setSkyP]               = useState(0);
+  const [skyP, setSkyP]               = useState(0.085);
   const [crashMult, setCrashMult]     = useState(null);
   const [betError, setBetError]       = useState('');
   const [showPlane, setShowPlane]     = useState(false);
@@ -1072,7 +1009,8 @@ function RocketGame({ setPage, telegramUser, userBalance, setUserBalance }) {
     tickRef.current    = 0;
     setRocketX(5);
     setRocketY(72);
-    setSkyP(0);
+    // skyP при первом тике = 1 - (72-7)/71 ≈ 0.085 — ставим сразу чтобы не было рывка
+    setSkyP(0.085);
     setCrashMult(null);
   };
 
