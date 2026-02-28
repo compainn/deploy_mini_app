@@ -18,6 +18,60 @@ app.use("/api", apiRoutes);
 app.post('/webhook', async (req, res) => {
   res.sendStatus(200);
   try {
+    // Обработка нажатия кнопки "Подарок"
+    const cq = req.body?.callback_query;
+    if (cq && cq.data?.startsWith('gift:')) {
+      const parts = cq.data.split(':');
+      const itemId = parts[1]; // например case_1_reward_1
+      const chatId = cq.message.chat.id;
+
+      // Маппинг itemId -> URL фото (фото из public папки или внешние URL)
+      const giftPhotos = {
+        'case_1_reward_1': 'https://deploy-mini-app.vercel.app/rewards/case_1_reward_1.png',
+        'case_1_reward_2': 'https://deploy-mini-app.vercel.app/rewards/case_1_reward_2.png',
+        'case_1_reward_3': 'https://deploy-mini-app.vercel.app/rewards/case_1_reward_3.png',
+        'case_1_reward_4': 'https://deploy-mini-app.vercel.app/rewards/case_1_reward_4.png',
+        'case_2_reward_1': 'https://deploy-mini-app.vercel.app/rewards/case_2_reward_1.png',
+        'case_2_reward_2': 'https://deploy-mini-app.vercel.app/rewards/case_2_reward_2.png',
+        'case_2_reward_3': 'https://deploy-mini-app.vercel.app/rewards/case_2_reward_3.png',
+        'case_2_reward_4': 'https://deploy-mini-app.vercel.app/rewards/case_2_reward_4.png',
+        'case_3_reward_1': 'https://deploy-mini-app.vercel.app/rewards/case_3_reward_1.png',
+        'case_3_reward_2': 'https://deploy-mini-app.vercel.app/rewards/case_3_reward_2.png',
+        'case_3_reward_3': 'https://deploy-mini-app.vercel.app/rewards/case_3_reward_3.png',
+        'case_3_reward_4': 'https://deploy-mini-app.vercel.app/rewards/case_3_reward_4.png',
+        'case_4_reward_1': 'https://deploy-mini-app.vercel.app/rewards/case_4_reward_1.png',
+        'case_4_reward_2': 'https://deploy-mini-app.vercel.app/rewards/case_4_reward_2.png',
+        'case_4_reward_3': 'https://deploy-mini-app.vercel.app/rewards/case_4_reward_3.png',
+        'case_4_reward_4': 'https://deploy-mini-app.vercel.app/rewards/case_4_reward_4.png',
+        'case_5_reward_1': 'https://deploy-mini-app.vercel.app/rewards/case_5_reward_1.png',
+        'case_5_reward_2': 'https://deploy-mini-app.vercel.app/rewards/case_5_reward_2.png',
+        'case_6_reward_1': 'https://deploy-mini-app.vercel.app/rewards/case_6_reward_1.png',
+        'case_6_reward_2': 'https://deploy-mini-app.vercel.app/rewards/case_6_reward_2.png',
+      };
+
+      const photoUrl = giftPhotos[itemId];
+      if (photoUrl) {
+        await fetch(`${TG_API}/sendPhoto`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, photo: photoUrl, caption: `🎁 ${itemId}` }),
+        });
+      } else {
+        await fetch(`${TG_API}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, text: `❓ Фото для ${itemId} не найдено` }),
+        });
+      }
+      // Убираем "часики" с кнопки
+      await fetch(`${TG_API}/answerCallbackQuery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ callback_query_id: cq.id }),
+      });
+      return;
+    }
+
     const msg = req.body?.message;
     if (!msg) return;
 
