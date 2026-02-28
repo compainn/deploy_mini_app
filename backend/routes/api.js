@@ -78,7 +78,8 @@ function rollPrize(prizeList) {
 // ============================================================
 router.post('/case/roll', async (req, res) => {
   try {
-    const { telegramId, caseId } = req.body;
+    const { telegramId } = req.body;
+    const caseId = parseInt(req.body.caseId, 10); // ВАЖНО: всегда число
     const user = await User.findOne({ where: { telegramId } });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
@@ -195,7 +196,8 @@ router.post('/user/win', async (req, res) => {
 // ============================================================
 router.post('/case/open', async (req, res) => {
   try {
-    const { telegramId, caseId, casePrice } = req.body;
+    const { telegramId, casePrice } = req.body;
+    const caseId = parseInt(req.body.caseId, 10); // ВАЖНО: всегда число
     const user = await User.findOne({ where: { telegramId } });
     if (!user) return res.status(404).json({ error: 'User not found' });
     if (user.balance < casePrice) return res.status(400).json({ error: 'Недостаточно средств' });
