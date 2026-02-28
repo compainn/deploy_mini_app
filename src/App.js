@@ -862,23 +862,14 @@ function CaseOpenPage({ caseData, setPage, userBalance, setUserBalance, telegram
           <div className="popup-content" onClick={e => e.stopPropagation()} style={{ paddingBottom: 30 }}>
             <div className="drag-bar"></div>
             <div style={{ textAlign: 'center', padding: '10px 0 20px' }}>
-              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, marginBottom: 16 }}>Вы выиграли</p>
               <img
                 src={rewardImages[prize.imageKey] || tonLogo}
                 alt={prize.name}
                 style={{ width: 100, height: 100, borderRadius: 20, objectFit: 'cover', border: '2px solid #0088cc', marginBottom: 16 }}
               />
-              <p style={{ color: 'white', fontSize: 24, fontWeight: 700, marginBottom: 8 }}>{prize.name}</p>
-              {prize.type === 'ton' && (
-                <p style={{ color: '#0088cc', fontSize: 16, fontWeight: 600, marginBottom: 20 }}>
-                  +{prize.amount} TON зачислено на баланс
-                </p>
-              )}
-              {prize.type === 'item' && (
-                <p style={{ color: '#0088cc', fontSize: 16, fontWeight: 600, marginBottom: 20 }}>
-                  Добавлено в инвентарь
-                </p>
-              )}
+              <p style={{ color: 'white', fontSize: 24, fontWeight: 700, marginBottom: 0 }}>
+                {prize.type === 'item' ? 'NFT' : prize.name}
+              </p>
             </div>
             <button
               className="open-case-btn"
