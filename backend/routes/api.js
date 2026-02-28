@@ -38,34 +38,71 @@ function getPrizeListForCase(caseId) {
         { type: 'item', id: `case_${caseId}_reward_3`, name: 'NFT', imageKey: `case_${caseId}_reward_3`, chance: 0.05 },
       ];
 
-  const bigCase = [1, 2].includes(caseId);
-  const tonPrizes = bigCase ? [
-    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 10 },
-    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 15 },
-    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 15 },
-    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 20 },
-    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 18 },
-    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 12 },
-    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 7  },
-    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 0.05 },
-    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 0.05 },
-  ] : caseId === 5 ? [
-    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 10 },
-    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 20 },
-    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 25 },
-    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 22 },
-    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 15 },
-    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 5  },
-    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 0.05 },
-  ] : [
-    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 10 },
-    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 18 },
-    { type: 'ton', amount: 0.25, name: '0.25 TON', imageKey: 'ton', chance: 22 },
-    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 22 },
-    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 15 },
-    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 8  },
-    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 3  },
-  ];
+  let tonPrizes;
+  if (caseId === 5) {
+    tonPrizes = [
+      { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 15 },
+      { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 25 },
+      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 22 },
+      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 22 },
+      { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 10 },
+      { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 3  },
+    ];
+  } else if (caseId === 4) {
+    tonPrizes = [
+      { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 10 },
+      { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 20 },
+      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 20 },
+      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 15 },
+      { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 22 },
+      { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 10 },
+      { type: 'ton', amount: 7.0,  name: '7 TON',    imageKey: 'ton', chance: 3  },
+    ];
+  } else if (caseId === 6) {
+    tonPrizes = [
+      { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 10 },
+      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 15 },
+      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 20 },
+      { type: 'ton', amount: 4.0,  name: '4 TON',    imageKey: 'ton', chance: 20 },
+      { type: 'ton', amount: 6.0,  name: '6 TON',    imageKey: 'ton', chance: 20 },
+      { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 12 },
+      { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 3  },
+    ];
+  } else if (caseId === 3) {
+    tonPrizes = [
+      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 10 },
+      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 15 },
+      { type: 'ton', amount: 4.0,  name: '4 TON',    imageKey: 'ton', chance: 20 },
+      { type: 'ton', amount: 6.0,  name: '6 TON',    imageKey: 'ton', chance: 20 },
+      { type: 'ton', amount: 8.0,  name: '8 TON',    imageKey: 'ton', chance: 20 },
+      { type: 'ton', amount: 12.0, name: '12 TON',   imageKey: 'ton', chance: 12 },
+      { type: 'ton', amount: 20.0, name: '20 TON',   imageKey: 'ton', chance: 3  },
+    ];
+  } else if (caseId === 1) {
+    tonPrizes = [
+      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 8  },
+      { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 12 },
+      { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 18 },
+      { type: 'ton', amount: 8.0,  name: '8 TON',    imageKey: 'ton', chance: 27 },
+      { type: 'ton', amount: 12.0, name: '12 TON',   imageKey: 'ton', chance: 20 },
+      { type: 'ton', amount: 18.0, name: '18 TON',   imageKey: 'ton', chance: 12 },
+      { type: 'ton', amount: 30.0, name: '30 TON',   imageKey: 'ton', chance: 3  },
+    ];
+  } else if (caseId === 2) {
+    tonPrizes = [
+      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 5  },
+      { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 10 },
+      { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 40 },
+      { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 10 },
+      { type: 'ton', amount: 25.0, name: '25 TON',   imageKey: 'ton', chance: 35 },
+    ];
+  } else {
+    tonPrizes = [
+      { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 35 },
+      { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 35 },
+      { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 20 },
+    ];
+  }
 
   return [...tonPrizes, ...itemPrizes];
 }
