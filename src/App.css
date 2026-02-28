@@ -298,7 +298,6 @@ body {
   overflow: hidden;
 }
 
-/* Крестик вместо стрелки назад */
 .close-btn {
   position: absolute;
   top: 10px;
@@ -352,7 +351,6 @@ body {
   padding: 15px 0;
 }
 
-/* ── CS2-стиль: центральная рамка куда попадает победитель ── */
 .wheel-center-frame {
   position: absolute;
   top: 50%;
@@ -371,7 +369,6 @@ body {
   background: rgba(0, 136, 204, 0.04);
 }
 
-/* Затемнение по краям ленты */
 .wheel-fade-left {
   position: absolute;
   top: 0;
@@ -416,7 +413,6 @@ body {
   transition: all 0.2s;
 }
 
-/* Победитель — подсветка убрана, рамка контейнера выделяет центр */
 .wheel-item.winner {
   border: 2px solid rgba(255,255,255,0.06);
 }
@@ -435,7 +431,6 @@ body {
   text-align: center;
 }
 
-/* Статичный список наград (без перетягивания) */
 .prizes-static {
   flex: 1;
   padding: 20px;
@@ -468,7 +463,7 @@ body {
   gap: 6px;
 }
 
-/* ── Drag bar — ломается как стрелка ── */
+/* ── Drag bar ── */
 .drag-bar {
   width: 52px;
   height: 6px;
@@ -491,11 +486,9 @@ body {
 .drag-bar::before { right: 50%; border-radius: 3px 0 0 3px; transform-origin: right center; }
 .drag-bar::after  { left: 50%;  border-radius: 0 3px 3px 0; transform-origin: left center; }
 
-/* Вниз — V форма */
 .drag-bar.drag-down::before { transform: rotate(22deg); }
 .drag-bar.drag-down::after  { transform: rotate(-22deg); }
 
-/* Вверх — ∧ форма */
 .drag-bar.drag-up::before { transform: rotate(-22deg); }
 .drag-bar.drag-up::after  { transform: rotate(22deg); }
 
@@ -823,7 +816,6 @@ body {
   gap: 14px;
 }
 
-/* Инвентарь - светлее */
 .inventory-item {
   background: rgba(255,255,255,0.15);
   border-radius: 20px;
@@ -993,8 +985,9 @@ body {
   opacity: 0.75;
   transform: scale(0.98);
 }
+
 /* ════════════════════════════════════════════
-   ROCKET GAME — полный редизайн
+   ROCKET GAME
 ════════════════════════════════════════════ */
 
 .rocket-game-page {
@@ -1004,11 +997,9 @@ body {
   background: #0a0a0f;
   overflow: hidden;
   position: relative;
-  /* панель внизу занимает ~120px, список подпирается снизу */
   padding-bottom: 130px;
 }
 
-/* ── Красный флеш ── */
 .crash-flash {
   position: absolute;
   inset: 0;
@@ -1024,7 +1015,12 @@ body {
   100% { opacity: 0; }
 }
 
-/* ── Окно ракеты ── */
+/* ═══════════════════════════════════════════
+   FIX 3: Rocket window — убираем inline transition,
+   ставим постоянный плавный transition в CSS.
+   Теперь фон меняется через displaySkyP (плавное
+   значение из JS-интерполятора), без рывков.
+═══════════════════════════════════════════ */
 .rocket-window {
   position: relative;
   width: calc(100% - 28px);
@@ -1035,9 +1031,10 @@ body {
   border-radius: 20px;
   border: 1px solid rgba(255,255,255,0.1);
   box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+  /* FIX 3: transition убран из inline style, задан здесь всегда */
+  transition: background 0.8s ease;
 }
 
-/* ── History bar ── */
 .rw-history-bar {
   position: absolute;
   bottom: 6px;
@@ -1060,16 +1057,15 @@ body {
   white-space: nowrap;
   color: white !important;
 }
-.rw-history-chip.c-blue   { background: #1a35cc; color: white; }
-.rw-history-chip.c-purple { background: #6d28d9; color: white; }
-.rw-history-chip.c-pink   { background: #be185d; color: white; }
-.rw-history-chip.c-yellow { background: #b45309; color: white; }
-.rw-history-chip.c-cyan   { background: #0369a1; color: white; }
-.rw-history-chip.c-red    { background: #b91c1c; color: white; }
-.rw-history-chip.c-green  { background: #15803d; color: white; }
-.rw-history-chip.c-black  { background: #111111; color: white; border: 1px solid rgba(255,255,255,0.15); }
+.rw-history-chip.c-blue   { background: #1a35cc; }
+.rw-history-chip.c-purple { background: #6d28d9; }
+.rw-history-chip.c-pink   { background: #be185d; }
+.rw-history-chip.c-yellow { background: #b45309; }
+.rw-history-chip.c-cyan   { background: #0369a1; }
+.rw-history-chip.c-red    { background: #b91c1c; }
+.rw-history-chip.c-green  { background: #15803d; }
+.rw-history-chip.c-black  { background: #111111; border: 1px solid rgba(255,255,255,0.15); }
 
-/* ── Самолёт ── */
 .rw-plane {
   position: absolute;
   top: 38%;
@@ -1084,7 +1080,9 @@ body {
   to   { left: 110%; opacity: 0; }
 }
 
-/* ── Toast ошибки (ракетка — красный) ── */
+/* ═══════════════════════════════════════════
+   FIX 2: Toast — success (зелёный) вариант
+═══════════════════════════════════════════ */
 .rw-bet-toast {
   position: fixed;
   top: 72px;
@@ -1100,27 +1098,26 @@ body {
   z-index: 9999;
   pointer-events: none;
   white-space: nowrap;
-  animation: toastIn 0.2s ease forwards, toastOut 0.3s ease 1.7s forwards;
+  animation: toastIn 0.2s ease forwards, toastOut 0.3s ease 2.2s forwards;
 }
-/* Глобальный toast — серый нейтральный */
+/* Глобальный toast — серый */
 .rw-bet-toast.global-toast {
   color: rgba(255,255,255,0.88);
   border-color: rgba(255,255,255,0.12);
   top: 20px;
 }
-/* Зелёный toast — успех */
-.rw-bet-toast.success-toast {
+/* FIX 2: Зелёный toast для успешных операций */
+.rw-bet-toast.global-toast.success-toast {
   color: #00e676;
-  border-color: rgba(0,230,118,0.25);
+  border-color: rgba(0,230,118,0.35);
+  background: rgba(0,40,20,0.95);
   top: 20px;
 }
 @keyframes toastIn  { from { opacity: 0; transform: translateX(-50%) translateY(-8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
 
-/* ── bet-error (убираем inline) ── */
 .rw-bet-error { display: none; }
 
-/* Статичные звёзды-точки */
 .rw-static-stars {
   position: absolute;
   inset: 0;
@@ -1134,7 +1131,6 @@ body {
   border-radius: 50%;
 }
 
-/* Lottie слои */
 .rw-lottie-layer {
   position: absolute;
   pointer-events: none;
@@ -1160,7 +1156,6 @@ body {
   left: 18%;
   z-index: 3;
 }
-/* НЛО — центр + по бокам чуть ниже */
 .rw-nlo-1 { top: 28%; left: 50%; transform: translateX(-50%); z-index: 5; animation: nloFloat 3s ease-in-out infinite; }
 .rw-nlo-2 { top: 45%; left: 18%;  z-index: 5; animation: nloFloat 3.5s ease-in-out infinite 0.3s; }
 .rw-nlo-3 { top: 45%; right: 18%; z-index: 5; animation: nloFloat 4s ease-in-out infinite 0.6s; }
@@ -1174,7 +1169,6 @@ body {
   z-index: 4;
 }
 .rw-meteor-layer { inset: 0; z-index: 4; pointer-events: none; }
-/* Отдельные маленькие облака */
 .rw-cloud-item {
   position: absolute;
   z-index: 4;
@@ -1187,7 +1181,6 @@ body {
   to   { transform: scale(var(--cs, 0.25)) translateX(-14px); }
 }
 
-/* Мультипликатор */
 .rw-multiplier {
   position: absolute;
   top: 14px;
@@ -1201,7 +1194,6 @@ body {
   line-height: 1;
 }
 
-/* "В раунде" / "УЛЕТЕЛА" */
 .rw-crash-label {
   position: absolute;
   top: 50px;
@@ -1226,7 +1218,6 @@ body {
   border-radius: 20px;
 }
 
-/* Ракета */
 .rw-rocket {
   position: absolute;
   transform: translateY(-50%);
@@ -1235,7 +1226,6 @@ body {
   filter: drop-shadow(0 0 10px rgba(255,140,0,0.8));
 }
 
-/* Краш-вспышка (без эмодзи) */
 .rw-crash-burst {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -1252,7 +1242,6 @@ body {
   100% { transform: translate(-50%,-50%) scale(2.5); opacity: 0; }
 }
 
-/* Трейл SVG */
 .rw-trail {
   position: absolute;
   inset: 0;
@@ -1262,7 +1251,6 @@ body {
   pointer-events: none;
 }
 
-/* ── Список ставок ── */
 .rw-bets-list {
   flex: 1;
   overflow-y: auto;
@@ -1274,7 +1262,6 @@ body {
   scrollbar-width: none;
 }
 .rw-bets-list::-webkit-scrollbar { display: none; }
-
 
 .rw-bets-empty {
   text-align: center;
@@ -1291,7 +1278,6 @@ body {
   border-radius: 30px;
   padding: 10px 14px;
   border: none;
-  transition: none;
 }
 .rw-bet-row.cashed {
   background: #2C2C2E;
@@ -1351,14 +1337,12 @@ body {
   color: #ff5555;
   line-height: 1.3;
 }
-
 .rw-bet-pending {
   font-size: 12px;
   color: rgba(255,255,255,0.3);
   font-weight: 500;
 }
 
-/* ── Панель ставки ── */
 .rw-panel {
   position: fixed;
   left: 10px;
@@ -1463,6 +1447,7 @@ body {
   color: rgba(255,255,255,0.45);
   border: 1px solid rgba(255,255,255,0.1);
 }
+
 /* ── Inventory popup ── */
 .inv-overlay {
   position: fixed;
@@ -1518,7 +1503,7 @@ body {
 .inv-withdraw-btn:active { opacity: 0.8; }
 .inv-withdraw-btn:disabled { opacity: 0.5; cursor: default; }
 
-/* ── Popup overlay & content (from DepositPopup.css) ── */
+/* ── Popup overlay & content ── */
 .popup-overlay {
   position: fixed;
   inset: 0;
