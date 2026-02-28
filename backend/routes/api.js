@@ -27,73 +27,85 @@ const convertToFriendlyAddress = (rawAddress) => {
 //  Таблица призов для каждого кейса (должна совпадать с фронтом)
 // ============================================================
 function getPrizeListForCase(caseId) {
+  // id5 = кейс 1.5 TON
+  if (caseId === 5) return [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 5  },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 40 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 32 },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 15 },
+    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 7  },
+    { type: 'item', id: 'case_5_reward_1', name: 'NFT', imageKey: 'case_5_reward_1', chance: 0.01 },
+    { type: 'item', id: 'case_5_reward_2', name: 'NFT', imageKey: 'case_5_reward_2', chance: 0.01 },
+    { type: 'item', id: 'case_5_reward_3', name: 'NFT', imageKey: 'case_5_reward_3', chance: 0.01 },
+    { type: 'item', id: 'case_5_reward_4', name: 'NFT', imageKey: 'case_5_reward_4', chance: 0.01 },
+  ];
+
+  // id4 = кейс 2.5 TON (те же награды что и 1.5)
+  if (caseId === 4) return [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 5  },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 40 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 32 },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 15 },
+    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 7  },
+    { type: 'item', id: 'case_4_reward_1', name: 'NFT', imageKey: 'case_4_reward_1', chance: 0.01 },
+    { type: 'item', id: 'case_4_reward_2', name: 'NFT', imageKey: 'case_4_reward_2', chance: 0.01 },
+    { type: 'item', id: 'case_4_reward_3', name: 'NFT', imageKey: 'case_4_reward_3', chance: 0.01 },
+    { type: 'item', id: 'case_4_reward_4', name: 'NFT', imageKey: 'case_4_reward_4', chance: 0.01 },
+  ];
+
+  // id6 = кейс 5 TON (добавляем 7 TON)
+  if (caseId === 6) return [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 5  },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 36 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 30 },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 15 },
+    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 10 },
+    { type: 'ton', amount: 7.0,  name: '7 TON',    imageKey: 'ton', chance: 3  },
+    { type: 'item', id: 'case_6_reward_1', name: 'NFT', imageKey: 'case_6_reward_1', chance: 0.01 },
+    { type: 'item', id: 'case_6_reward_2', name: 'NFT', imageKey: 'case_6_reward_2', chance: 0.01 },
+    { type: 'item', id: 'case_6_reward_3', name: 'NFT', imageKey: 'case_6_reward_3', chance: 0.01 },
+  ];
+
+  // id3 = кейс 7 TON (добавляем 10 TON)
+  if (caseId === 3) return [
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 5  },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 32 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 28 },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 18 },
+    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 11 },
+    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 5  },
+    { type: 'item', id: 'case_3_reward_1', name: 'NFT', imageKey: 'case_3_reward_1', chance: 0.01 },
+    { type: 'item', id: 'case_3_reward_2', name: 'NFT', imageKey: 'case_3_reward_2', chance: 0.01 },
+    { type: 'item', id: 'case_3_reward_3', name: 'NFT', imageKey: 'case_3_reward_3', chance: 0.01 },
+  ];
+
+  // id1 = кейс 10 TON (добавляем 15 TON)
   if (caseId === 1) return [
-    { type: 'ton', amount: 0.1,  name: '0.1 TON',  imageKey: 'ton', chance: 35 },
-    { type: 'ton', amount: 0.3,  name: '0.3 TON',  imageKey: 'ton', chance: 28 },
-    { type: 'ton', amount: 0.7,  name: '0.7 TON',  imageKey: 'ton', chance: 18 },
-    { type: 'ton', amount: 1.5,  name: '1.5 TON',  imageKey: 'ton', chance: 8  },
-    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 2  },
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 5  },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 30 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 27 },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 18 },
+    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 12 },
+    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 7  },
     { type: 'item', id: 'case_1_reward_1', name: 'NFT', imageKey: 'case_1_reward_1', chance: 0.01 },
     { type: 'item', id: 'case_1_reward_2', name: 'NFT', imageKey: 'case_1_reward_2', chance: 0.01 },
     { type: 'item', id: 'case_1_reward_3', name: 'NFT', imageKey: 'case_1_reward_3', chance: 0.01 },
     { type: 'item', id: 'case_1_reward_4', name: 'NFT', imageKey: 'case_1_reward_4', chance: 0.01 },
   ];
 
+  // id2 = кейс 20 TON (добавляем 20 TON)
   if (caseId === 2) return [
-    { type: 'ton', amount: 0.2,  name: '0.2 TON',  imageKey: 'ton', chance: 30 },
-    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 25 },
-    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 18 },
-    { type: 'ton', amount: 2.5,  name: '2.5 TON',  imageKey: 'ton', chance: 10 },
-    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 3  },
+    { type: 'ton', amount: 0.01, name: '0.01 TON', imageKey: 'ton', chance: 5  },
+    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 27 },
+    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 25 },
+    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 18 },
+    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 13 },
+    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 7  },
+    { type: 'ton', amount: 20.0, name: '20 TON',   imageKey: 'ton', chance: 4  },
     { type: 'item', id: 'case_2_reward_1', name: 'NFT', imageKey: 'case_2_reward_1', chance: 0.01 },
     { type: 'item', id: 'case_2_reward_2', name: 'NFT', imageKey: 'case_2_reward_2', chance: 0.01 },
     { type: 'item', id: 'case_2_reward_3', name: 'NFT', imageKey: 'case_2_reward_3', chance: 0.01 },
     { type: 'item', id: 'case_2_reward_4', name: 'NFT', imageKey: 'case_2_reward_4', chance: 0.01 },
-  ];
-
-  if (caseId === 3) return [
-    { type: 'ton', amount: 0.5,  name: '0.5 TON',  imageKey: 'ton', chance: 28 },
-    { type: 'ton', amount: 1.5,  name: '1.5 TON',  imageKey: 'ton', chance: 22 },
-    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 18 },
-    { type: 'ton', amount: 7.0,  name: '7 TON',    imageKey: 'ton', chance: 10 },
-    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 3  },
-    { type: 'item', id: 'case_3_reward_1', name: 'NFT', imageKey: 'case_3_reward_1', chance: 0.01 },
-    { type: 'item', id: 'case_3_reward_2', name: 'NFT', imageKey: 'case_3_reward_2', chance: 0.01 },
-    { type: 'item', id: 'case_3_reward_3', name: 'NFT', imageKey: 'case_3_reward_3', chance: 0.01 },
-  ];
-
-  if (caseId === 4) return [
-    { type: 'ton', amount: 1.0,  name: '1 TON',    imageKey: 'ton', chance: 28 },
-    { type: 'ton', amount: 3.0,  name: '3 TON',    imageKey: 'ton', chance: 22 },
-    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 18 },
-    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 10 },
-    { type: 'ton', amount: 20.0, name: '20 TON',   imageKey: 'ton', chance: 3  },
-    { type: 'item', id: 'case_4_reward_1', name: 'NFT', imageKey: 'case_4_reward_1', chance: 0.01 },
-    { type: 'item', id: 'case_4_reward_2', name: 'NFT', imageKey: 'case_4_reward_2', chance: 0.01 },
-    { type: 'item', id: 'case_4_reward_3', name: 'NFT', imageKey: 'case_4_reward_3', chance: 0.01 },
-  ];
-
-  if (caseId === 5) return [
-    { type: 'ton', amount: 2.0,  name: '2 TON',    imageKey: 'ton', chance: 25 },
-    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 20 },
-    { type: 'ton', amount: 10.0, name: '10 TON',   imageKey: 'ton', chance: 16 },
-    { type: 'ton', amount: 20.0, name: '20 TON',   imageKey: 'ton', chance: 10 },
-    { type: 'ton', amount: 40.0, name: '40 TON',   imageKey: 'ton', chance: 3  },
-    { type: 'item', id: 'case_5_reward_1', name: 'NFT', imageKey: 'case_5_reward_1', chance: 0.01 },
-    { type: 'item', id: 'case_5_reward_2', name: 'NFT', imageKey: 'case_5_reward_2', chance: 0.01  },
-    { type: 'item', id: 'case_5_reward_3', name: 'NFT', imageKey: 'case_5_reward_3', chance: 0.01  },
-    { type: 'item', id: 'case_5_reward_4', name: 'NFT', imageKey: 'case_5_reward_4', chance: 0.01  },
-  ];
-
-  if (caseId === 6) return [
-    { type: 'ton', amount: 5.0,  name: '5 TON',    imageKey: 'ton', chance: 22 },
-    { type: 'ton', amount: 15.0, name: '15 TON',   imageKey: 'ton', chance: 20 },
-    { type: 'ton', amount: 30.0, name: '30 TON',   imageKey: 'ton', chance: 16 },
-    { type: 'ton', amount: 50.0, name: '50 TON',   imageKey: 'ton', chance: 10 },
-    { type: 'ton', amount: 100.0,name: '100 TON',  imageKey: 'ton', chance: 3  },
-    { type: 'item', id: 'case_6_reward_1', name: 'NFT', imageKey: 'case_6_reward_1', chance: 0.01 },
-    { type: 'item', id: 'case_6_reward_2', name: 'NFT', imageKey: 'case_6_reward_2', chance: 0.01 },
-    { type: 'item', id: 'case_6_reward_3', name: 'NFT', imageKey: 'case_6_reward_3', chance: 0.01 },
   ];
 
   return [];
