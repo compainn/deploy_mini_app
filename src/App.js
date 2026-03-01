@@ -230,6 +230,7 @@ function App() {
 function MainApp() {
   const [page, setPage] = useState('games');
   const wallet = useTonWallet();
+  const [tonConnectUI] = useTonConnectUI();
   const [userBalance, setUserBalance] = useState(0);
   const [telegramUser, setTelegramUser] = useState(null);
   const [friendlyAddress, setFriendlyAddress] = useState('');
